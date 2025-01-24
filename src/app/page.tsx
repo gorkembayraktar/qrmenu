@@ -3,9 +3,9 @@ import WifiModule from "@/modules/wifi/wifiModule";
 import ThemeV1 from "@/themes/v1/page";
 import ThemeV2 from "@/themes/v2/page";
 import ThemeV3 from "@/themes/v3/page";
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import dynamic from 'next/dynamic';
+
+import { createClient } from "@/utils/supabase_server";
+
 
 interface MenuData {
   theme: {
@@ -90,7 +90,7 @@ interface MenuData {
 }
 
 async function getMenuData(): Promise<MenuData> {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
 
   // Tema ayarlarını al
   const { data: themeData } = await supabase
