@@ -1,53 +1,37 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import {
-    FiMenu,
-    FiBell,
-    FiLogOut,
-    FiChevronDown
-} from 'react-icons/fi';
+import { FiMenu, FiBell } from 'react-icons/fi';
 import Sidebar from './layouts/Sidebar';
 import NotificationDropdown from './components/NotificationDropdown';
+import UserMenu from './components/UserMenu';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    return (
+        <AuthProvider>
+            <DashboardContent>{children}</DashboardContent>
+        </AuthProvider>
+    );
+}
+
+function DashboardContent({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [menuOpen, setMenuOpen] = useState(false);
     const [notificationOpen, setNotificationOpen] = useState(false);
-    const { user, signOut } = useAuth();
-    const router = useRouter();
+    const { user, loading } = useAuth();
 
-    const handleLogout = async () => {
-        await signOut();
-        router.push('/login');
-    };
-
-    // Close menus when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            const menu = document.getElementById('user-menu');
-            const button = document.getElementById('user-menu-button');
-            const notificationMenu = document.getElementById('notification-menu');
-            const notificationButton = document.getElementById('notification-button');
-
-            if (menu && button && !menu.contains(event.target as Node) && !button.contains(event.target as Node)) {
-                setMenuOpen(false);
-            }
-
-            if (notificationMenu && notificationButton && !notificationMenu.contains(event.target as Node) && !notificationButton.contains(event.target as Node)) {
-                setNotificationOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -88,33 +72,7 @@ export default function DashboardLayout({
                                         />
                                     </div>
                                 </div>
-                                <div className="relative">
-                                    <button
-                                        id="user-menu-button"
-                                        onClick={() => setMenuOpen(!menuOpen)}
-                                        className="flex items-center space-x-1 p-1.5 rounded-lg hover:bg-gray-100/50 transition-all"
-                                    >
-                                        <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white font-medium text-sm shadow-sm">
-                                            {user?.email?.charAt(0).toUpperCase()}
-                                        </div>
-                                        <FiChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`} />
-                                    </button>
-                                    <div
-                                        id="user-menu"
-                                        className={`absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-lg py-1 border border-gray-100 transition-all duration-200 ${menuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}
-                                    >
-                                        <div className="px-3 py-2 border-b border-gray-100">
-                                            <p className="text-sm font-medium text-gray-900 truncate">{user?.email}</p>
-                                        </div>
-                                        <button
-                                            onClick={handleLogout}
-                                            className="flex items-center space-x-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                        >
-                                            <FiLogOut className="h-4 w-4" />
-                                            <span>Çıkış Yap</span>
-                                        </button>
-                                    </div>
-                                </div>
+                                <UserMenu />
                             </div>
                         </div>
                     </div>
