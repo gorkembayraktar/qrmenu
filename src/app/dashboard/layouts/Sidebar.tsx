@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { FiHome, FiList, FiSettings, FiX, FiChevronDown, FiGrid, FiPackage, FiUsers } from 'react-icons/fi';
+import { FiHome, FiList, FiSettings, FiX, FiChevronDown, FiGrid, FiPackage, FiUsers, FiLock } from 'react-icons/fi';
 import { BiSolidFoodMenu } from 'react-icons/bi';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -32,8 +32,7 @@ const menuItems: MenuItem[] = [
         label: 'Menü Yönetimi',
         subItems: [
             { label: 'Kategoriler', href: '/dashboard/menu/categories' },
-            { label: 'Ürünler', href: '/dashboard/menu/products' },
-            { label: 'Özellikler', href: '/dashboard/menu/attributes' }
+            { label: 'Ürünler', href: '/dashboard/menu/products' }
         ]
     },
     {
@@ -41,9 +40,14 @@ const menuItems: MenuItem[] = [
         label: 'Ayarlar',
         subItems: [
             { label: 'Genel Ayarlar', href: '/dashboard/settings' },
-            { label: 'Görünüm', href: '/dashboard/settings/appearance' },
-            { label: 'Kullanıcılar', href: '/dashboard/settings/users' }
+            { label: 'Çalışma Saatleri', href: '/dashboard/settings/working-hours' },
+            { label: 'Tema Ayarları', href: '/dashboard/settings/appearance' },
         ]
+    },
+    {
+        icon: FiLock,
+        label: 'Moduller',
+        href: '/dashboard/modules'
     }
 ];
 
