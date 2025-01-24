@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { FiClock, FiMapPin, FiPhone, FiInstagram, FiStar, FiMenu, FiChevronRight, FiX } from 'react-icons/fi';
-import { BiSolidFoodMenu } from 'react-icons/bi';
+import { FiClock, FiMapPin, FiPhone, FiInstagram, FiStar, FiMenu, FiChevronRight, FiX, FiFacebook, FiTwitter, FiYoutube } from 'react-icons/fi';
+import { BiSolidFoodMenu, BiSolidDish } from 'react-icons/bi';
 import { GiKnifeFork } from 'react-icons/gi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatPrice } from '@/utils/price';
@@ -23,6 +23,21 @@ interface MenuItem {
     image?: string;
     nutritionalValues?: NutritionalInfo;
 }
+
+const SocialIcon = ({ platform }: { platform: string }) => {
+    switch (platform) {
+        case 'instagram':
+            return <FiInstagram className="w-6 h-6" />;
+        case 'facebook':
+            return <FiFacebook className="w-6 h-6" />;
+        case 'twitter':
+            return <FiTwitter className="w-6 h-6" />;
+        case 'youtube':
+            return <FiYoutube className="w-6 h-6" />;
+        default:
+            return null;
+    }
+};
 
 export default function ThemeV3({ menuData }: { menuData: any }) {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -137,9 +152,17 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
             <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-transparent'}`}>
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex items-center justify-between h-16">
-                        <h1 className={`text-xl font-semibold transition-colors ${isScrolled ? 'text-gray-900' : 'text-white'}`}>
-                            {menuData.restaurantInfo.name}
-                        </h1>
+                        {menuData.settings.logo_url ? (
+                            <img
+                                src={menuData.settings.logo_url}
+                                alt={menuData.restaurantInfo.name}
+                                className={`h-8 w-auto transition-colors ${isScrolled ? 'opacity-90' : 'opacity-100'}`}
+                            />
+                        ) : (
+                            <h1 className={`text-xl font-semibold transition-colors ${isScrolled ? 'text-gray-900' : 'text-white'}`}>
+                                {menuData.restaurantInfo.name}
+                            </h1>
+                        )}
                         <div className="hidden md:flex space-x-8">
                             {menuData.categories.map((category: any) => (
                                 <button
@@ -200,19 +223,25 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                     />
                 </div>
                 <div className="relative h-full flex flex-col items-center justify-center text-white px-4">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
-                        className="text-center"
-                    >
-                        <h1 className="text-5xl md:text-6xl font-bold mb-4">{menuData.restaurantInfo.name}</h1>
-                        <p className="text-xl md:text-2xl text-gray-300 mb-6">{menuData.restaurantInfo.description}</p>
-                        <div className="flex items-center justify-center space-x-2">
-                            <FiStar className="text-yellow-400" />
-                            <span className="text-yellow-400 font-medium">{menuData.restaurantInfo.rating}</span>
-                        </div>
-                    </motion.div>
+
+                    {menuData.settings.logo_url ? (
+                        <img
+                            src={menuData.settings.logo_url}
+                            alt={menuData.restaurantInfo.name}
+                            className="h-16 w-auto mb-4"
+                        />
+                    ) : (
+                        <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">
+                            {menuData.restaurantInfo.name}
+                        </h1>
+                    )}
+                    <p className="text-lg md:text-xl text-gray-200 max-w-2xl text-center mb-2">
+                        {menuData.restaurantInfo.description}
+                    </p>
+                    <div className="flex items-center justify-center space-x-2">
+                        <FiStar className="text-yellow-400" />
+                        <span className="text-yellow-400 font-medium">{menuData.restaurantInfo.rating}</span>
+                    </div>
                 </div>
             </div>
 
@@ -231,7 +260,25 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                             </div>
                             <div>
                                 <h3 className="font-semibold text-gray-900">Çalışma Saatleri</h3>
-                                <p className="text-sm text-gray-600">{menuData.restaurantInfo.workingHours.weekdays}</p>
+                                {(() => {
+                                    const today = new Date().getDay();
+                                    const todayHours = menuData.restaurantInfo.workingHours.find((h: any) => h.day === today);
+
+                                    if (!todayHours) {
+                                        return <p className="text-sm text-red-500">Kapalı</p>;
+                                    }
+
+                                    return (
+                                        <p className="text-sm">
+                                            <span className={todayHours.is_open ? "text-green-600" : "text-red-500"}>
+                                                {todayHours.is_open ? "Açık" : "Kapalı"}
+                                            </span>
+                                            <span className="text-gray-600 ml-1">
+                                                ({todayHours.open_time.slice(0, 5)} - {todayHours.close_time.slice(0, 5)})
+                                            </span>
+                                        </p>
+                                    );
+                                })()}
                             </div>
                         </div>
                     </motion.div>
@@ -273,9 +320,9 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
             </div>
 
             {/* Mobile Category Scroll */}
-            <div className="lg:hidden sticky top-16 bg-white shadow-md z-30">
-                <div className="overflow-x-auto">
-                    <div className="flex whitespace-nowrap px-4 py-3 space-x-4">
+            <div className="lg:hidden sticky top-16 bg-white/95 backdrop-blur-md shadow-sm z-30">
+                <div className="overflow-x-auto scrollbar-hide scroll-smooth overscroll-x-contain">
+                    <div className="flex items-center px-4 py-4 gap-3 min-w-full">
                         {menuData.categories.map((category: any) => (
                             <button
                                 key={category.title}
@@ -283,15 +330,20 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                                     setSelectedCategory(category.title);
                                     scrollToCategory(category.title);
                                 }}
-                                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedCategory === category.title
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                    }`}
+                                className={`
+                                    flex-none px-5 py-2.5 rounded-full text-sm font-medium
+                                    transition-all duration-200 ease-out
+                                    ${selectedCategory === category.title
+                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25 scale-105'
+                                        : 'bg-gray-100/80 text-gray-600 hover:bg-gray-200/80'
+                                    }
+                                `}
                             >
                                 {category.title}
                             </button>
                         ))}
                     </div>
+                    <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
                 </div>
             </div>
 
@@ -399,103 +451,118 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
             </AnimatePresence>
 
             {/* Footer */}
-            <footer className="bg-gradient-to-b from-gray-900 to-gray-800 text-white pt-16 pb-8">
+            <footer id="contact" className="bg-gradient-to-b from-gray-50 to-gray-100 pt-16 pb-8">
                 <div className="max-w-7xl mx-auto px-4">
-                    {/* Logo and Social Links */}
-                    <div className="flex flex-col md:flex-row justify-between items-center mb-12">
-                        <div className="text-center md:text-left mb-8 md:mb-0">
-                            <h2 className="text-2xl font-bold mb-2">{menuData.restaurantInfo.name}</h2>
-                            <p className="text-gray-400 max-w-md">{menuData.restaurantInfo.tagline}</p>
-                        </div>
-                        <div className="flex items-center space-x-6">
-                            <a href={`https://instagram.com/${menuData.restaurantInfo.instagram}`}
-                                className="transform hover:scale-110 transition-transform duration-200"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <FiInstagram className="text-2xl text-gray-400 hover:text-white" />
-                            </a>
-                            <a href={`tel:${menuData.restaurantInfo.phone}`}
-                                className="transform hover:scale-110 transition-transform duration-200"
-                            >
-                                <FiPhone className="text-2xl text-gray-400 hover:text-white" />
-                            </a>
-                            <a href={`https://maps.google.com/?q=${encodeURIComponent(menuData.restaurantInfo.address)}`}
-                                className="transform hover:scale-110 transition-transform duration-200"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <FiMapPin className="text-2xl text-gray-400 hover:text-white" />
-                            </a>
-                        </div>
-                    </div>
-
-                    {/* Info Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-                        {/* Contact Info */}
-                        <div className="text-center md:text-left">
-                            <h3 className="text-lg font-semibold mb-4 text-gray-200">İletişim</h3>
-                            <div className="space-y-3">
-                                <p className="flex items-center justify-center md:justify-start text-gray-400 hover:text-white transition-colors">
-                                    <FiMapPin className="mr-2" />
-                                    <span>{menuData.restaurantInfo.address}</span>
-                                </p>
-                                <p className="flex items-center justify-center md:justify-start text-gray-400 hover:text-white transition-colors">
-                                    <FiPhone className="mr-2" />
+                        {/* Restaurant Info */}
+                        <div>
+                            {menuData.settings.logo_url ? (
+                                <img
+                                    src={menuData.settings.logo_url}
+                                    alt={menuData.restaurantInfo.name}
+                                    className="h-12 w-auto mb-6"
+                                />
+                            ) : (
+                                <h3 className="text-2xl font-bold text-gray-900 mb-6">{menuData.restaurantInfo.name}</h3>
+                            )}
+                            <p className="text-gray-600 mb-6">{menuData.restaurantInfo.description}</p>
+                            <div className="flex flex-col gap-4">
+                                <a
+                                    href={`tel:${menuData.restaurantInfo.phone}`}
+                                    className="flex items-center gap-3 text-gray-600 hover:text-blue-600 transition-colors"
+                                >
+                                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+                                        <FiPhone className="text-blue-600" />
+                                    </div>
                                     <span>{menuData.restaurantInfo.phone}</span>
-                                </p>
-                                <p className="flex items-center justify-center md:justify-start text-gray-400 hover:text-white transition-colors">
-                                    <FiInstagram className="mr-2" />
-                                    <span>{menuData.restaurantInfo.instagram}</span>
-                                </p>
+                                </a>
+                                <a
+                                    href={`https://maps.google.com/?q=${encodeURIComponent(menuData.restaurantInfo.address)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-3 text-gray-600 hover:text-blue-600 transition-colors"
+                                >
+                                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+                                        <FiMapPin className="text-blue-600" />
+                                    </div>
+                                    <span>{menuData.restaurantInfo.address}</span>
+                                </a>
                             </div>
                         </div>
 
                         {/* Working Hours */}
-                        <div className="text-center">
-                            <h3 className="text-lg font-semibold mb-4 text-gray-200">Çalışma Saatleri</h3>
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-6">Çalışma Saatleri</h3>
                             <div className="space-y-3">
-                                <div className="flex justify-between items-center text-gray-400">
-                                    <span>Hafta içi:</span>
-                                    <span>{menuData.restaurantInfo.workingHours.weekdays}</span>
-                                </div>
-                                <div className="flex justify-between items-center text-gray-400">
-                                    <span>Hafta sonu:</span>
-                                    <span>{menuData.restaurantInfo.workingHours.weekend}</span>
-                                </div>
-                                {menuData.restaurantInfo.workingHours.friday && (
-                                    <div className="flex justify-between items-center text-gray-400">
-                                        <span>Cuma:</span>
-                                        <span>{menuData.restaurantInfo.workingHours.friday}</span>
-                                    </div>
-                                )}
+                                {(() => {
+                                    const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+                                    const today = new Date().getDay();
+
+                                    return menuData.restaurantInfo.workingHours.map((hours: any) => {
+                                        const dayIndex = hours.day === 0 ? 6 : hours.day - 1;
+                                        const isToday = today === hours.day;
+
+                                        return (
+                                            <div
+                                                key={hours.day}
+                                                className={`flex items-center justify-between ${isToday ? 'text-blue-600 font-medium' : 'text-gray-600'
+                                                    }`}
+                                            >
+                                                <span>{days[dayIndex]}</span>
+                                                <span>
+                                                    {hours.is_open
+                                                        ? `${hours.open_time.slice(0, 5)} - ${hours.close_time.slice(0, 5)}`
+                                                        : `Kapalı (${hours.open_time.slice(0, 5)}-${hours.close_time.slice(0, 5)})`
+                                                    }
+                                                </span>
+                                            </div>
+                                        );
+                                    });
+                                })()}
                             </div>
                         </div>
 
-                        {/* Quick Links */}
-                        <div className="text-center md:text-right">
-                            <h3 className="text-lg font-semibold mb-4 text-gray-200">Hızlı Menü</h3>
-                            <div className="space-y-2">
-                                {menuData.categories.slice(0, 4).map((category: any) => (
+                        {/* Quick Links & Social */}
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-6">Hızlı Menü</h3>
+                            <div className="grid grid-cols-2 gap-2 mb-8">
+                                {menuData.categories.slice(0, 6).map((category: any) => (
                                     <button
                                         key={category.title}
                                         onClick={() => scrollToCategory(category.title)}
-                                        className="block w-full text-gray-400 hover:text-white transition-colors text-center md:text-right"
+                                        className="text-left text-gray-600 hover:text-blue-600 transition-colors"
                                     >
                                         {category.title}
                                     </button>
                                 ))}
                             </div>
+
+                            {menuData.modules?.social?.is_active && menuData.modules.social.settings.social.accounts.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Sosyal Medya</h3>
+                                    <div className="flex gap-4">
+                                        {menuData.modules.social.settings.social.accounts.map((account: any) => (
+                                            <a
+                                                key={account.id}
+                                                href={account.username}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 hover:bg-blue-100 transition-colors"
+                                            >
+                                                <SocialIcon platform={account.platform} />
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Bottom Bar */}
-                    <div className="border-t border-gray-700 pt-8">
-                        <div className="flex flex-col md:flex-row justify-between items-center">
-                            <p className="text-sm text-gray-500 mb-4 md:mb-0">
-                                &copy; {new Date().getFullYear()} {menuData.restaurantInfo.name}. Tüm hakları saklıdır.
-                            </p>
-                        </div>
+                    {/* Copyright */}
+                    <div className="border-t border-gray-200 pt-8 text-center">
+                        <p className="text-gray-500 text-sm">
+                            {menuData.restaurantInfo.footer_text} {menuData.settings.copyright_text}
+                        </p>
                     </div>
                 </div>
             </footer>

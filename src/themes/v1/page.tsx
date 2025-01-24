@@ -81,28 +81,51 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
     <>
       <main className="relative min-h-screen bg-background">
         {/* Hero Section */}
-        <div className="relative h-[60vh] min-h-[500px] bg-[url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600')] bg-cover bg-center">
+        <div className="relative h-[80vh] min-h-[600px] bg-[url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600')] bg-cover bg-center">
           <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/70">
             <div className="container mx-auto h-full px-4 py-8">
               <div className="flex flex-col justify-center h-full max-w-4xl mx-auto text-center">
-                <div className="inline-flex items-center justify-center gap-2 bg-primary/20 text-primary rounded-full px-4 py-2 mb-6 backdrop-blur-sm mx-auto">
-                  <BiSolidFoodMenu className="text-xl" />
-                  <span className="text-sm font-medium">{menuData.restaurantInfo.tagline}</span>
-                </div>
 
-                <h1 className="text-5xl md:text-7xl font-bold mb-4 text-white">
-                  {menuData.restaurantInfo.name}
-                </h1>
-                <p className="text-xl text-white/90 mb-8 font-light">
+                {menuData.settings.logo_url ? (
+                  <div className="mb-8">
+                    <img
+                      src={menuData.settings.logo_url}
+                      alt={menuData.restaurantInfo.name}
+                      className="h-24 w-auto mx-auto"
+                    />
+                  </div>
+                ) : (
+                  <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white">
+                    {menuData.restaurantInfo.name}
+                  </h1>
+                )}
+
+                <p className="text-xl text-white/90 mb-8 font-light max-w-2xl mx-auto">
                   {menuData.restaurantInfo.description}
                 </p>
 
                 <div className="flex items-center justify-center gap-4 mb-12">
-                  <div className="flex items-center gap-1 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
                     <FiStar className="text-yellow-400" />
                     <span className="text-white font-medium">{menuData.restaurantInfo.rating}</span>
                   </div>
-
+                  {menuData.modules?.social?.is_active && menuData.modules.social.settings.social.accounts.length > 0 && (
+                    <div className="flex items-center gap-3">
+                      {menuData.modules.social.settings.social.accounts.map((account: any) => (
+                        <a
+                          key={account.id}
+                          href={account.username}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/20 transition-colors"
+                        >
+                          {account.platform === 'instagram' && <FiInstagram className="text-white text-xl" />}
+                          {account.platform === 'facebook' && <FiFacebook className="text-white text-xl" />}
+                          {account.platform === 'twitter' && <FiTwitter className="text-white text-xl" />}
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-white/90 text-sm max-w-3xl mx-auto">
@@ -210,7 +233,17 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
             {/* Restaurant Info */}
             <div className="space-y-6">
               <div>
-                <h3 className="text-white text-2xl font-bold mb-2">{menuData.restaurantInfo.name}</h3>
+                {menuData.settings.logo_url ? (
+                  <div className="mb-4">
+                    <img
+                      src={menuData.settings.logo_url}
+                      alt={menuData.restaurantInfo.name}
+                      className="h-12 w-auto"
+                    />
+                  </div>
+                ) : (
+                  <h3 className="text-white text-2xl font-bold mb-2">{menuData.restaurantInfo.name}</h3>
+                )}
                 <p className="text-white/60 text-sm leading-relaxed">
                   {menuData.restaurantInfo.description}
                 </p>

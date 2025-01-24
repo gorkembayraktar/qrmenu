@@ -5,6 +5,7 @@ import ThemeV2 from "@/themes/v2/page";
 import ThemeV3 from "@/themes/v3/page";
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
+import dynamic from 'next/dynamic';
 
 interface MenuData {
   theme: {
@@ -206,25 +207,33 @@ const ThemeComponents = {
   'classic-bistro': ThemeV3
 } as const;
 
-export default async function Home() {
-  const menuData = await getMenuData();
-  // console.log(menuData.modules);
-  const selectedTheme = menuData.theme?.template || 'elegance';
+type ThemeType = keyof typeof ThemeComponents;
 
-  const ThemeComponent = ThemeComponents[selectedTheme as keyof typeof ThemeComponents] || ThemeV1;
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
+  const params = await searchParams;
+  const menuData = await getMenuData();
+  const theme = typeof params.theme === 'string' ? params.theme : 'elegance';
+  const preview = params.preview === 'true';
+
+  const selectedTheme = preview && theme in ThemeComponents
+    ? (theme as ThemeType)
+    : (menuData.theme?.template || 'elegance');
+
+  const ThemeComponent = ThemeComponents[selectedTheme];
 
   return (
     <>
       <ThemeComponent menuData={menuData} />
-      {menuData.modules?.wifi && menuData.modules.wifi.is_active && (
+      {!preview && menuData.modules?.wifi && menuData.modules.wifi.is_active && (
         <WifiModule wifiData={menuData.modules.wifi} />
       )}
-
-      {menuData.modules?.whatsapp && menuData.modules.whatsapp.is_active && (
+      {!preview && menuData.modules?.whatsapp && menuData.modules.whatsapp.is_active && (
         <WhatsappModule whatsappData={menuData.modules.whatsapp} />
       )}
-
-
     </>
   );
 }
