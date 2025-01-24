@@ -43,7 +43,7 @@ export default function ProductsPage() {
         isOpen: false,
         product: null
     });
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<number | 'all'>('all');
     const [availabilityFilter, setAvailabilityFilter] = useState<boolean | 'all'>('all');

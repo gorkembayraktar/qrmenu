@@ -14,7 +14,7 @@ interface WifiSettings {
     appearance: {
         position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
         size: 'small' | 'medium' | 'large';
-        margin: number;
+        margin: { x: number; y: number };
         showOnMobile: boolean;
     };
 }
@@ -30,7 +30,7 @@ export default function WifiSettingsPage() {
         appearance: {
             position: 'bottom-right',
             size: 'medium',
-            margin: 20,
+            margin: { x: 24, y: 24 },
             showOnMobile: true
         }
     });
@@ -292,23 +292,59 @@ export default function WifiSettingsPage() {
                             {/* Margin */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Kenar Boşluğu (px)
+                                    Kenar Boşlukları
                                 </label>
-                                <div className="flex items-center space-x-4">
-                                    <input
-                                        type="range"
-                                        min="10"
-                                        max="50"
-                                        value={settings.appearance.margin}
-                                        onChange={(e) => setSettings(prev => ({
-                                            ...prev,
-                                            appearance: { ...prev.appearance, margin: parseInt(e.target.value) }
-                                        }))}
-                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                                    />
-                                    <span className="text-sm font-medium text-gray-700 w-12">
-                                        {settings.appearance.margin}px
-                                    </span>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs text-gray-600 mb-1">Yatay (X)</label>
+                                        <div className="flex items-center space-x-4">
+                                            <input
+                                                type="range"
+                                                min="10"
+                                                max="150"
+                                                value={settings.appearance.margin?.x || 24}
+                                                onChange={(e) => setSettings(prev => ({
+                                                    ...prev,
+                                                    appearance: {
+                                                        ...prev.appearance,
+                                                        margin: {
+                                                            ...prev.appearance.margin,
+                                                            x: parseInt(e.target.value)
+                                                        }
+                                                    }
+                                                }))}
+                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                                            />
+                                            <span className="text-sm font-medium text-gray-700 w-12">
+                                                {settings.appearance.margin?.x || 24}px
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs text-gray-600 mb-1">Dikey (Y)</label>
+                                        <div className="flex items-center space-x-4">
+                                            <input
+                                                type="range"
+                                                min="10"
+                                                max="150"
+                                                value={settings.appearance.margin?.y || 24}
+                                                onChange={(e) => setSettings(prev => ({
+                                                    ...prev,
+                                                    appearance: {
+                                                        ...prev.appearance,
+                                                        margin: {
+                                                            ...prev.appearance.margin,
+                                                            y: parseInt(e.target.value)
+                                                        }
+                                                    }
+                                                }))}
+                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                                            />
+                                            <span className="text-sm font-medium text-gray-700 w-12">
+                                                {settings.appearance.margin?.y || 24}px
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -351,7 +387,7 @@ export default function WifiSettingsPage() {
                                     ${settings.appearance.position === 'bottom-left' ? 'bottom-0 left-0' : ''}
                                     ${settings.appearance.position === 'bottom-right' ? 'bottom-0 right-0' : ''}
                                 `}
-                                style={{ padding: `${settings.appearance.margin}px` }}
+                                style={{ padding: ` ${settings.appearance.margin.y || 24}px ${settings.appearance.margin.x || 24}px` }}
                             >
                                 <div className={`
                                     flex items-center justify-center rounded-full bg-blue-500 text-white cursor-pointer

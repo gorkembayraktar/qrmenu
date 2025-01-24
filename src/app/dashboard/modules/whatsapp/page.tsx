@@ -29,6 +29,12 @@ interface WhatsAppModule {
 interface WhatsAppSettings {
     number: string;
     message: string;
+    appearance: {
+        position: Position;
+        size: Size;
+        margin: { x: number; y: number };
+        showOnMobile: boolean;
+    };
 }
 
 // Format phone number as user types (5XX XXX XX XX)
@@ -62,13 +68,13 @@ const fromWhatsAppFormat = (value: string) => {
 };
 
 export default function WhatsAppSettingsPage() {
-    const [settings, setSettings] = useState({
+    const [settings, setSettings] = useState<WhatsAppSettings>({
         number: '',
         message: 'Merhaba, menünüz hakkında bilgi almak istiyorum.',
         appearance: {
-            position: 'bottom-right' as Position,
-            size: 'medium' as Size,
-            margin: 20,
+            position: 'bottom-right',
+            size: 'medium',
+            margin: { x: 24, y: 24 },
             showOnMobile: true
         }
     });
@@ -92,14 +98,18 @@ export default function WhatsAppSettingsPage() {
             if (data) {
                 setIsActive(data.is_active);
                 if (data.settings?.whatsapp) {
+                    const appearance = data.settings.whatsapp.appearance || {};
                     setSettings({
-                        number: fromWhatsAppFormat(data.settings.whatsapp.number),
+                        number: fromWhatsAppFormat(data.settings.whatsapp.number || ''),
                         message: data.settings.whatsapp.message || 'Merhaba, menünüz hakkında bilgi almak istiyorum.',
                         appearance: {
-                            position: data.settings.whatsapp.appearance?.position || 'bottom-right',
-                            size: data.settings.whatsapp.appearance?.size || 'medium',
-                            margin: data.settings.whatsapp.appearance?.margin || 20,
-                            showOnMobile: data.settings.whatsapp.appearance?.showOnMobile ?? true
+                            position: appearance.position || 'bottom-right',
+                            size: appearance.size || 'medium',
+                            margin: {
+                                x: appearance.margin?.x || 24,
+                                y: appearance.margin?.y || 24
+                            },
+                            showOnMobile: appearance.showOnMobile ?? true
                         }
                     });
                 }
@@ -344,23 +354,59 @@ export default function WhatsAppSettingsPage() {
                             {/* Margin */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Kenar Boşluğu (px)
+                                    Kenar Boşlukları
                                 </label>
-                                <div className="flex items-center space-x-4">
-                                    <input
-                                        type="range"
-                                        min="10"
-                                        max="50"
-                                        value={settings.appearance.margin}
-                                        onChange={(e) => setSettings(prev => ({
-                                            ...prev,
-                                            appearance: { ...prev.appearance, margin: parseInt(e.target.value) }
-                                        }))}
-                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-500"
-                                    />
-                                    <span className="text-sm font-medium text-gray-700 w-12">
-                                        {settings.appearance.margin}px
-                                    </span>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs text-gray-600 mb-1">Yatay (X)</label>
+                                        <div className="flex items-center space-x-4">
+                                            <input
+                                                type="range"
+                                                min="10"
+                                                max="150"
+                                                value={settings.appearance.margin.x}
+                                                onChange={(e) => setSettings(prev => ({
+                                                    ...prev,
+                                                    appearance: {
+                                                        ...prev.appearance,
+                                                        margin: {
+                                                            ...prev.appearance.margin,
+                                                            x: parseInt(e.target.value)
+                                                        }
+                                                    }
+                                                }))}
+                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-500"
+                                            />
+                                            <span className="text-sm font-medium text-gray-700 w-12">
+                                                {settings.appearance.margin.x}px
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs text-gray-600 mb-1">Dikey (Y)</label>
+                                        <div className="flex items-center space-x-4">
+                                            <input
+                                                type="range"
+                                                min="10"
+                                                max="150"
+                                                value={settings.appearance.margin.y}
+                                                onChange={(e) => setSettings(prev => ({
+                                                    ...prev,
+                                                    appearance: {
+                                                        ...prev.appearance,
+                                                        margin: {
+                                                            ...prev.appearance.margin,
+                                                            y: parseInt(e.target.value)
+                                                        }
+                                                    }
+                                                }))}
+                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-500"
+                                            />
+                                            <span className="text-sm font-medium text-gray-700 w-12">
+                                                {settings.appearance.margin.y}px
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -403,7 +449,7 @@ export default function WhatsAppSettingsPage() {
                                     ${settings.appearance.position === 'bottom-left' ? 'bottom-0 left-0' : ''}
                                     ${settings.appearance.position === 'bottom-right' ? 'bottom-0 right-0' : ''}
                                 `}
-                                style={{ padding: `${settings.appearance.margin}px` }}
+                                style={{ padding: `${settings.appearance.margin.y}px ${settings.appearance.margin.x}px` }}
                             >
                                 <div className={`
                                     flex items-center justify-center rounded-full bg-green-500 text-white cursor-pointer

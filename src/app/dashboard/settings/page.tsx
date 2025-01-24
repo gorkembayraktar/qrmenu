@@ -25,7 +25,8 @@ export default function SettingsPage() {
         logo_url: '',
         favicon_url: '',
         footer_text: '',
-        copyright_text: ''
+        copyright_text: '',
+        email: ''
     });
 
     const supabase = createClientComponentClient();
@@ -75,13 +76,11 @@ export default function SettingsPage() {
         const loadingToast = toast.loading('Ayarlar kaydediliyor...');
 
         try {
-            // Convert settings object to array of updates
             const updates = Object.entries(settings).map(([name, value]) => ({
                 name,
-                value
+                value: name === 'phone' ? value.replace(/\D/g, '') : value
             }));
 
-            // Update all settings
             const { error } = await supabase
                 .from('settings')
                 .upsert(updates, { onConflict: 'name' });
@@ -272,12 +271,24 @@ export default function SettingsPage() {
                                     Telefon
                                 </label>
                                 <PatternFormat
-                                    format="+90 (###) ### ## ##"
+                                    format="+## (###) ### ## ##"
                                     mask="_"
                                     value={settings.phone}
                                     onValueChange={(values) => handleInputChange('phone', values.value)}
                                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-                                    placeholder="+90 (___) ___ __ __"
+                                    placeholder="+__ (___) ___ __ __"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    E-posta
+                                </label>
+                                <input
+                                    type="email"
+                                    value={settings.email}
+                                    onChange={(e) => handleInputChange('email', e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                                    placeholder="E-posta adresinizi girin"
                                 />
                             </div>
                             <div className="md:col-span-2">

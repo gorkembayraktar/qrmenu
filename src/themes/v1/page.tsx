@@ -6,9 +6,32 @@ import { FiClock, FiMapPin, FiPhone, FiInstagram, FiStar, FiFacebook, FiTwitter 
 import { BiSolidFoodMenu } from 'react-icons/bi';
 import { HiOutlineMail } from 'react-icons/hi';
 
+interface WorkingHours {
+  day: number;
+  is_open: boolean;
+  open_time: string;
+  close_time: string;
+}
 
+// Add formatting function at the top
+const formatPhoneNumber = (phone: string) => {
+  if (!phone) return '';
+
+  // Remove any non-digit characters
+  const cleaned = phone.replace(/\D/g, '');
+
+  // Extract country code (first 1-3 digits)
+  const countryCode = cleaned.slice(0, cleaned.length > 10 ? cleaned.length - 10 : 0);
+  const number = cleaned.slice(-10);
+
+  // Format the number
+  const formatted = number.replace(/(\d{3})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4');
+
+  return countryCode ? `+${countryCode} (${formatted})` : formatted;
+};
 
 export default function ThemeV1({ menuData }: { menuData: any }) {
+
   const [activeCategory, setActiveCategory] = useState('');
   const navRef = useRef<HTMLDivElement>(null);
   let touchStartX = 0;
@@ -79,15 +102,7 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                     <FiStar className="text-yellow-400" />
                     <span className="text-white font-medium">{menuData.restaurantInfo.rating}</span>
                   </div>
-                  <a
-                    href={`https://instagram.com/${menuData.restaurantInfo.instagram.substring(1)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-white transition-all"
-                  >
-                    <FiInstagram />
-                    <span>{menuData.restaurantInfo.instagram}</span>
-                  </a>
+
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-white/90 text-sm max-w-3xl mx-auto">
@@ -97,17 +112,38 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                   </div>
                   <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm p-3 rounded-xl">
                     <FiPhone className="text-primary text-xl" />
-                    <span>{menuData.restaurantInfo.phone}</span>
+                    <span>{formatPhoneNumber(menuData.restaurantInfo.phone)}</span>
                   </div>
                   <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm p-3 rounded-xl">
                     <FiClock className="text-primary text-xl" />
                     <div className="text-left">
                       <p className="text-white/60 text-xs">Bugün</p>
-                      <span>{new Date().getDay() === 5
-                        ? menuData.restaurantInfo.workingHours.friday
-                        : new Date().getDay() === 0 || new Date().getDay() === 6
-                          ? menuData.restaurantInfo.workingHours.weekend
-                          : menuData.restaurantInfo.workingHours.weekdays}</span>
+                      {(() => {
+                        const today = new Date().getDay();
+                        const currentHour = new Date().getHours();
+                        const currentMinute = new Date().getMinutes();
+                        const currentTime = `${currentHour}:${currentMinute}`;
+
+                        const todayHours = menuData.restaurantInfo.workingHours.find((h: WorkingHours) => h.day === today);
+
+                        if (!todayHours) {
+                          return <span className="text-red-400">Kapalı</span>;
+                        }
+
+                        const openTime = todayHours.open_time.slice(0, 5);
+                        const closeTime = todayHours.close_time.slice(0, 5);
+
+                        return (
+                          <div>
+                            <span className={todayHours.is_open ? "" : "text-red-400"}>
+                              {todayHours.is_open ? "Açık" : "Kapalı"}
+                            </span>
+                            <span className="text-white/60 text-xs ml-1">
+                              ({openTime} - {closeTime})
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -168,7 +204,7 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
           </svg>
         </div>
 
-        <div className="container mx-auto px-4 pt-16 pb-12">
+        <div className="max-w-7xl mx-auto px-4 pt-16 pb-12">
           {/* Main Footer Content */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
             {/* Restaurant Info */}
@@ -188,7 +224,7 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                   <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary/10">
                     <FiPhone className="text-primary" />
                   </div>
-                  <span className="text-sm">{menuData.restaurantInfo.phone}</span>
+                  <span className="text-sm">{formatPhoneNumber(menuData.restaurantInfo.phone)}</span>
                 </a>
 
                 <a
@@ -198,7 +234,7 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                   <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary/10">
                     <HiOutlineMail className="text-primary" />
                   </div>
-                  <span className="text-sm">info@lezzetduragi.com</span>
+                  <span className="text-sm">{menuData.restaurantInfo.email}</span>
                 </a>
 
                 <a
@@ -212,29 +248,8 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                   </div>
                   <span className="text-sm">{menuData.restaurantInfo.address}</span>
                 </a>
-              </div>
 
-              <div className="flex gap-4">
-                <a
-                  href={`https://instagram.com/${menuData.restaurantInfo.instagram.substring(1)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/10 transition-colors group"
-                >
-                  <FiInstagram className="text-primary group-hover:scale-110 transition-transform" />
-                </a>
-                <a
-                  href="#"
-                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/10 transition-colors group"
-                >
-                  <FiFacebook className="text-primary group-hover:scale-110 transition-transform" />
-                </a>
-                <a
-                  href="#"
-                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/10 transition-colors group"
-                >
-                  <FiTwitter className="text-primary group-hover:scale-110 transition-transform" />
-                </a>
+
               </div>
             </div>
 
@@ -257,22 +272,35 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
             {/* Working Hours */}
             <div>
               <h3 className="text-white text-lg font-semibold mb-6">Çalışma Saatleri</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/40">Hafta İçi</span>
-                  <span className="text-white">{menuData.restaurantInfo.workingHours.weekdays}</span>
+              <div className="flex items-start gap-3 text-white/60 group mt-4">
+                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                  <FiClock className="text-primary" />
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/40">Cuma</span>
-                  <span className="text-white">{menuData.restaurantInfo.workingHours.friday}</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/40">Hafta Sonu</span>
-                  <span className="text-white">{menuData.restaurantInfo.workingHours.weekend}</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/40">Resmi Tatil</span>
-                  <span className="text-white">{menuData.restaurantInfo.workingHours.holiday}</span>
+                <div className="flex flex-col gap-2">
+                  {(() => {
+                    const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+                    const today = new Date().getDay();
+
+                    return menuData.restaurantInfo.workingHours.map((hours: WorkingHours) => {
+                      const dayIndex = hours.day === 0 ? 6 : hours.day - 1; // Convert Sunday (0) to 6
+                      const isToday = today === hours.day;
+
+                      return (
+                        <div
+                          key={hours.day}
+                          className={`flex items-center justify-between text-sm ${isToday ? 'text-primary' : ''}`}
+                        >
+                          <span className="min-w-[100px]">{days[dayIndex]}</span>
+                          <span>
+                            {hours.is_open
+                              ? `${hours.open_time.slice(0, 5)} - ${hours.close_time.slice(0, 5)}`
+                              : 'Kapalı'
+                            }
+                          </span>
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
             </div>
@@ -281,7 +309,7 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
           {/* Bottom Bar */}
           <div className="border-t border-white/10 pt-8 text-center">
             <p className="text-white/40 text-sm">
-              © {new Date().getFullYear()} {menuData.restaurantInfo.name}. Tüm hakları saklıdır.
+              {menuData.restaurantInfo.footer_text}{menuData.settings.copyright_text}
             </p>
           </div>
         </div>
