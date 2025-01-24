@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# QR Menu Yönetim Sistemi
 
-## Getting Started
+Modern ve kullanıcı dostu bir QR menü yönetim sistemi. Restoranlar için dijital menü oluşturma ve yönetme imkanı sunar.
 
-First, run the development server:
+## Özellikler
 
+- 🎨 Modern ve responsive tasarım
+- 📱 Mobil uyumlu arayüz
+- 🔒 Güvenli admin paneli
+- 📊 Menü yönetimi
+- 🖼️ Görsel yükleme ve yönetim
+- 💫 Animasyonlu geçişler
+- 🌙 Çoklu tema desteği
+
+## Kurulum
+
+1. Projeyi klonlayın:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone [repo-url]
+cd qr-menu
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Bağımlılıkları yükleyin:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. `.env.local` dosyasını oluşturun ve gerekli değişkenleri ekleyin:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Veritabanı migration'larını çalıştırın:
+```bash
+npm run migrate
+```
 
-## Learn More
+5. Geliştirme sunucusunu başlatın:
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Admin Paneli
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Migration işlemi sonrasında aşağıdaki bilgilerle admin paneline giriş yapabilirsiniz:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **URL**: http://localhost:3000/dashboard/login
+- **Email**: admin@admin.com
+- **Şifre**: 123456
 
-## Deploy on Vercel
+## Teknolojiler
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [Next.js 14](https://nextjs.org/)
+- [React 19](https://reactjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Supabase](https://supabase.com/)
+- [Cloudinary](https://cloudinary.com/)
+- [Framer Motion](https://www.framer.com/motion/)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Klasör Yapısı
+
+```
+src/
+├── app/                # Next.js app router
+├── components/         # Yeniden kullanılabilir bileşenler
+├── contexts/          # React context'leri
+├── migrations/        # Veritabanı migration'ları
+├── modules/           # Özellik modülleri
+├── themes/           # Tema bileşenleri
+└── utils/            # Yardımcı fonksiyonlar
+```
+
+## Geliştirme
+
+1. Yeni bir özellik eklemek için branch oluşturun:
+```bash
+git checkout -b feature/yeni-ozellik
+```
+
+2. Değişikliklerinizi commit'leyin:
+```bash
+git commit -m "feat: yeni özellik eklendi"
+```
+
+3. Pull request oluşturun
+
+## Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
