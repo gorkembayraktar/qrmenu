@@ -7,6 +7,7 @@ import Sidebar from './layouts/Sidebar';
 import NotificationDropdown from './components/NotificationDropdown';
 import UserMenu from './components/UserMenu';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { usePathname } from 'next/navigation';
 
 export default function DashboardLayout({
     children,
@@ -24,6 +25,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [notificationOpen, setNotificationOpen] = useState(false);
     const { user, loading } = useAuth();
+    const pathname = usePathname();
+
+    // Tema sayfası için kontrol
+    const isThemePage = pathname?.startsWith('/dashboard/theme');
 
     if (loading) {
         return (
@@ -31,6 +36,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
         );
+    }
+
+    if (isThemePage) {
+        return <div className="min-h-screen bg-gray-50">{children}</div>;
     }
 
     return (

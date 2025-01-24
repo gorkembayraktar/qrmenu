@@ -41,7 +41,7 @@ const menuItems: MenuItem[] = [
         subItems: [
             { label: 'Genel Ayarlar', href: '/dashboard/settings' },
             { label: 'Çalışma Saatleri', href: '/dashboard/settings/working-hours' },
-            { label: 'Tema Ayarları', href: '/dashboard/settings/appearance' },
+            { label: 'Tema Ayarları', href: '/dashboard/theme' },
         ]
     },
     {
