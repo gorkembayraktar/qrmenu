@@ -1,13 +1,18 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { FiSave, FiGlobe, FiLayout, FiDollarSign, FiImage, FiClock } from 'react-icons/fi';
+import { useState, useEffect, useRef } from 'react';
+import { FiSave, FiGlobe, FiLayout, FiDollarSign, FiImage, FiClock, FiUpload, FiTrash2 } from 'react-icons/fi';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import toast from 'react-hot-toast';
 import { PatternFormat } from 'react-number-format';
+import Image from 'next/image';
 
 export default function SettingsPage() {
     const [loading, setLoading] = useState(false);
+    const [uploadingLogo, setUploadingLogo] = useState(false);
+    const [uploadingFavicon, setUploadingFavicon] = useState(false);
+    const [deletingLogo, setDeletingLogo] = useState(false);
+    const [deletingFavicon, setDeletingFavicon] = useState(false);
     const [settings, setSettings] = useState({
         page_title: '',
         restaurant_name: '',
@@ -24,6 +29,8 @@ export default function SettingsPage() {
     });
 
     const supabase = createClientComponentClient();
+    const logoInputRef = useRef<HTMLInputElement>(null);
+    const faviconInputRef = useRef<HTMLInputElement>(null);
 
     // Load settings on component mount
     useEffect(() => {
@@ -97,6 +104,94 @@ export default function SettingsPage() {
             });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleFileUpload = async (file: File, type: 'logo' | 'favicon') => {
+        try {
+            if (type === 'logo') {
+                setUploadingLogo(true);
+            } else {
+                setUploadingFavicon(true);
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('type', type);
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Upload failed');
+            }
+
+            // Update settings state with new URL
+            handleInputChange(`${type}_url`, data.url);
+
+            // Save to settings table
+            const { error: saveError } = await supabase
+                .from('settings')
+                .upsert({ name: `${type}_url`, value: data.url }, { onConflict: 'name' });
+
+            if (saveError) throw saveError;
+
+            // Clear file input
+            if (type === 'logo' && logoInputRef.current) {
+                logoInputRef.current.value = '';
+            } else if (type === 'favicon' && faviconInputRef.current) {
+                faviconInputRef.current.value = '';
+            }
+
+            toast.success(`${type === 'logo' ? 'Logo' : 'Favicon'} başarıyla yüklendi`);
+
+        } catch (error) {
+            console.error('Upload error:', error);
+            toast.error(`${type === 'logo' ? 'Logo' : 'Favicon'} yüklenirken bir hata oluştu`);
+        } finally {
+            if (type === 'logo') {
+                setUploadingLogo(false);
+            } else {
+                setUploadingFavicon(false);
+            }
+        }
+    };
+
+    const handleDelete = async (type: 'logo' | 'favicon') => {
+        try {
+            if (type === 'logo') {
+                setDeletingLogo(true);
+            } else {
+                setDeletingFavicon(true);
+            }
+
+            const response = await fetch(`/api/upload/delete?type=${type}`, {
+                method: 'DELETE'
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Silme işlemi başarısız oldu');
+            }
+
+            // Update local state
+            handleInputChange(`${type}_url`, '');
+            toast.success(data.message);
+
+        } catch (error: any) {
+            console.error('Delete error:', error);
+            toast.error(error.message || 'Silme işlemi başarısız oldu');
+        } finally {
+            if (type === 'logo') {
+                setDeletingLogo(false);
+            } else {
+                setDeletingFavicon(false);
+            }
         }
     };
 
@@ -285,42 +380,120 @@ export default function SettingsPage() {
                                     Logo
                                 </label>
                                 <div className="flex items-center space-x-4">
-                                    <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
-                                        <FiImage className="w-8 h-8 text-gray-400" />
+                                    <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                                        {settings.logo_url ? (
+                                            <Image
+                                                src={settings.logo_url}
+                                                alt="Logo"
+                                                width={80}
+                                                height={80}
+                                                className="w-full h-full object-contain"
+                                            />
+                                        ) : (
+                                            <FiImage className="w-8 h-8 text-gray-400" />
+                                        )}
                                     </div>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="block w-full text-sm text-gray-500
-                                        file:mr-4 file:py-2 file:px-4
-                                        file:rounded-full file:border-0
-                                        file:text-sm file:font-semibold
-                                        file:bg-blue-50 file:text-blue-700
-                                        hover:file:bg-blue-100"
-                                    />
+                                    <div className="flex-1">
+                                        <div className="flex items-center space-x-2">
+                                            <input
+                                                ref={logoInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file) handleFileUpload(file, 'logo');
+                                                }}
+                                                className="block w-full text-sm text-gray-500
+                                                file:mr-4 file:py-2 file:px-4
+                                                file:rounded-full file:border-0
+                                                file:text-sm file:font-semibold
+                                                file:bg-blue-50 file:text-blue-700
+                                                hover:file:bg-blue-100
+                                                disabled:opacity-50 disabled:cursor-not-allowed"
+                                                disabled={uploadingLogo}
+                                            />
+                                            {settings.logo_url && (
+                                                <button
+                                                    onClick={() => handleDelete('logo')}
+                                                    disabled={deletingLogo}
+                                                    className={`p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors
+                                                        ${deletingLogo ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                    title="Logo'yu kaldır"
+                                                >
+                                                    {deletingLogo ? (
+                                                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                    ) : (
+                                                        <FiTrash2 className="w-5 h-5" />
+                                                    )}
+                                                </button>
+                                            )}
+                                        </div>
+                                        <p className="mt-2 text-xs text-gray-500">PNG, JPG veya GIF (max. 2MB)</p>
+                                    </div>
                                 </div>
-                                <p className="mt-2 text-xs text-gray-500">PNG, JPG veya GIF (max. 2MB)</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Favicon
                                 </label>
                                 <div className="flex items-center space-x-4">
-                                    <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
-                                        <FiImage className="w-8 h-8 text-gray-400" />
+                                    <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                                        {settings.favicon_url ? (
+                                            <Image
+                                                src={settings.favicon_url}
+                                                alt="Favicon"
+                                                width={32}
+                                                height={32}
+                                                className="w-8 h-8"
+                                            />
+                                        ) : (
+                                            <FiImage className="w-8 h-8 text-gray-400" />
+                                        )}
                                     </div>
-                                    <input
-                                        type="file"
-                                        accept="image/x-icon,image/png"
-                                        className="block w-full text-sm text-gray-500
-                                        file:mr-4 file:py-2 file:px-4
-                                        file:rounded-full file:border-0
-                                        file:text-sm file:font-semibold
-                                        file:bg-blue-50 file:text-blue-700
-                                        hover:file:bg-blue-100"
-                                    />
+                                    <div className="flex-1">
+                                        <div className="flex items-center space-x-2">
+                                            <input
+                                                ref={faviconInputRef}
+                                                type="file"
+                                                accept="image/x-icon,image/png"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file) handleFileUpload(file, 'favicon');
+                                                }}
+                                                className="block w-full text-sm text-gray-500
+                                                file:mr-4 file:py-2 file:px-4
+                                                file:rounded-full file:border-0
+                                                file:text-sm file:font-semibold
+                                                file:bg-blue-50 file:text-blue-700
+                                                hover:file:bg-blue-100
+                                                disabled:opacity-50 disabled:cursor-not-allowed"
+                                                disabled={uploadingFavicon}
+                                            />
+                                            {settings.favicon_url && (
+                                                <button
+                                                    onClick={() => handleDelete('favicon')}
+                                                    disabled={deletingFavicon}
+                                                    className={`p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors
+                                                        ${deletingFavicon ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                    title="Favicon'u kaldır"
+                                                >
+                                                    {deletingFavicon ? (
+                                                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                    ) : (
+                                                        <FiTrash2 className="w-5 h-5" />
+                                                    )}
+                                                </button>
+                                            )}
+                                        </div>
+                                        <p className="mt-2 text-xs text-gray-500">ICO veya PNG (32x32px)</p>
+                                    </div>
                                 </div>
-                                <p className="mt-2 text-xs text-gray-500">ICO veya PNG (32x32px)</p>
                             </div>
                         </div>
                     </div>

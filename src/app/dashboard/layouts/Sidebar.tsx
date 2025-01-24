@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FiHome, FiList, FiSettings, FiX, FiChevronDown, FiGrid, FiPackage, FiUsers } from 'react-icons/fi';
 import { BiSolidFoodMenu } from 'react-icons/bi';
 import { usePathname } from 'next/navigation';
@@ -50,6 +50,17 @@ const menuItems: MenuItem[] = [
 export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
     const pathname = usePathname();
     const [openMenus, setOpenMenus] = useState<string[]>([]);
+
+    // Check active menu and open its dropdown
+    useEffect(() => {
+        const activeMenu = menuItems.find(item =>
+            item.subItems?.some(subItem => pathname?.startsWith(subItem.href))
+        );
+
+        if (activeMenu && !openMenus.includes(activeMenu.label)) {
+            setOpenMenus(prev => [...prev, activeMenu.label]);
+        }
+    }, [pathname]);
 
     const toggleSubmenu = (label: string) => {
         setOpenMenus(prev =>
