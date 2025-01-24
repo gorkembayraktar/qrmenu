@@ -10,6 +10,7 @@ import {
     FiChevronDown
 } from 'react-icons/fi';
 import Sidebar from './layouts/Sidebar';
+import NotificationDropdown from './components/NotificationDropdown';
 
 export default function DashboardLayout({
     children,
@@ -18,6 +19,7 @@ export default function DashboardLayout({
 }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [notificationOpen, setNotificationOpen] = useState(false);
     const { user, signOut } = useAuth();
     const router = useRouter();
 
@@ -26,13 +28,20 @@ export default function DashboardLayout({
         router.push('/login');
     };
 
-    // Close menu when clicking outside
+    // Close menus when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const menu = document.getElementById('user-menu');
             const button = document.getElementById('user-menu-button');
+            const notificationMenu = document.getElementById('notification-menu');
+            const notificationButton = document.getElementById('notification-button');
+
             if (menu && button && !menu.contains(event.target as Node) && !button.contains(event.target as Node)) {
                 setMenuOpen(false);
+            }
+
+            if (notificationMenu && notificationButton && !notificationMenu.contains(event.target as Node) && !notificationButton.contains(event.target as Node)) {
+                setNotificationOpen(false);
             }
         };
 
@@ -63,10 +72,22 @@ export default function DashboardLayout({
                             </div>
 
                             <div className="flex items-center space-x-1 md:space-x-3">
-                                <button className="p-1.5 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100/50 transition-all relative">
-                                    <FiBell className="h-5 w-5" />
-                                    <span className="absolute top-0.5 right-0.5 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-                                </button>
+                                <div className="relative">
+                                    <button
+                                        id="notification-button"
+                                        onClick={() => setNotificationOpen(!notificationOpen)}
+                                        className="p-1.5 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100/50 transition-all relative"
+                                    >
+                                        <FiBell className="h-5 w-5" />
+                                        <span className="absolute top-0.5 right-0.5 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                                    </button>
+                                    <div id="notification-menu">
+                                        <NotificationDropdown
+                                            isOpen={notificationOpen}
+                                            onClose={() => setNotificationOpen(false)}
+                                        />
+                                    </div>
+                                </div>
                                 <div className="relative">
                                     <button
                                         id="user-menu-button"

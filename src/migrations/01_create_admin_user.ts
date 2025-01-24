@@ -1,25 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
-import * as dotenv from 'dotenv';
-import { resolve } from 'path';
+import { SupabaseClient } from '@supabase/supabase-js';
 
-// .env.local dosyasını yükle
-dotenv.config({ path: resolve(__dirname, '../../.env.local') });
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error('Missing Supabase environment variables. Check .env.local file.');
-}
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-        autoRefreshToken: false,
-        persistSession: false
-    }
-});
-
-export async function up() {
+export async function up(supabaseAdmin: SupabaseClient) {
     try {
         // Önce admin kullanıcısının var olup olmadığını kontrol et
         const { data: existingUser } = await supabaseAdmin
@@ -51,7 +32,7 @@ export async function up() {
     }
 }
 
-export async function down() {
+export async function down(supabaseAdmin: SupabaseClient) {
     try {
         // Admin kullanıcısını sil
         const { error } = await supabaseAdmin.auth.admin.deleteUser(

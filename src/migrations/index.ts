@@ -1,42 +1,57 @@
-import * as createAdminUser from './01_create_admin_user';
+import { SupabaseClient, createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+import path from 'path';
+import * as CreateAdminUser from './01_create_admin_user';
 
-const migrations = [
-    createAdminUser,
+// Load environment variables
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.error('❌ Supabase credentials are missing in .env.local file');
+    process.exit(1);
+}
+
+export const migrations = [
+    CreateAdminUser
 ];
 
-async function runMigrations(isReset: boolean = false) {
+export async function runMigrations(supabase: SupabaseClient, isReset: boolean = false) {
     console.log(`Starting migrations... (Mode: ${isReset ? 'RESET' : 'UP'})`);
 
     if (isReset) {
-        // Migrations'ı tersten çalıştır (down)
+        // Run migrations in reverse for reset
         for (let i = migrations.length - 1; i >= 0; i--) {
-            const migration = migrations[i];
             try {
-                await migration.down();
+                await migrations[i].down(supabase);
+                console.log(`✅ Migration reset completed`);
             } catch (error) {
-                console.error(`Migration down failed:`, error);
-                process.exit(1);
+                console.error(`❌ Migration reset failed:`, error);
+                throw error;
             }
         }
         console.log('All migrations have been reset successfully');
-
-        // Sonra yeniden yükle (up)
-        console.log('Re-applying migrations...');
     }
 
-    // Normal migration işlemi (up)
+    // Run migrations up
     for (const migration of migrations) {
         try {
-            await migration.up();
+            await migration.up(supabase);
+            console.log(`✅ Migration completed`);
         } catch (error) {
-            console.error('Migration failed:', error);
-            process.exit(1);
+            console.error(`❌ Migration failed:`, error);
+            throw error;
         }
     }
-
-    console.log('All migrations completed successfully');
 }
 
-// Komut satırı argümanlarını kontrol et
+// Initialize Supabase
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+// Check for reset flag
 const isReset = process.argv.includes('--reset');
-runMigrations(isReset); 
+
+// Run migrations
+runMigrations(supabase, isReset);
