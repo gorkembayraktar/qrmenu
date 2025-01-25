@@ -4,6 +4,8 @@ Modern ve kullanıcı dostu bir QR menü yönetim sistemi. Restoranlar için dij
 
 Live Demo: [https://qrmenu.gorkembayraktar.com](https://qrmenu.gorkembayraktar.com)
 
+Video: [Youtube](https://www.youtube.com/watch?v=mpktd1wmN5o)
+
 ![homepaage](./doc/homepage.png)
 
 ## Özellikler
