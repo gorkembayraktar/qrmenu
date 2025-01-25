@@ -6,6 +6,7 @@ import { BiSolidFoodMenu, BiSolidDish } from 'react-icons/bi';
 import { GiKnifeFork } from 'react-icons/gi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatPrice } from '@/utils/price';
+import { v3 } from '@/mockdata/theme';
 
 interface NutritionalInfo {
     calories: number;
@@ -40,10 +41,30 @@ const SocialIcon = ({ platform }: { platform: string }) => {
 };
 
 export default function ThemeV3({ menuData }: { menuData: any }) {
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+
+    // Varsayılan renk paleti
+    const colors = menuData.theme?.appearance?.colors || v3.colors;
+
+    // CSS değişkenlerini ayarla
+    useEffect(() => {
+        const root = document.documentElement;
+        root.style.setProperty('--primary-color', colors.primary);
+        root.style.setProperty('--secondary-color', colors.secondary);
+        root.style.setProperty('--accent-color', colors.accent);
+        root.style.setProperty('--background-color', colors.background);
+        root.style.setProperty('--text-color', colors.text);
+        root.style.setProperty('--heading-color', colors.heading);
+        root.style.setProperty('--card-bg', colors.card.background);
+        root.style.setProperty('--card-text', colors.card.text);
+        root.style.setProperty('--card-border', colors.card.border);
+        root.style.setProperty('--card-hover', colors.card.hover);
+        root.style.setProperty('--price-bg', colors.price.background);
+        root.style.setProperty('--price-text', colors.primary);
+    }, [colors]);
 
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -147,9 +168,10 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
     );
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen" style={{ backgroundColor: 'var(--background-color)', color: 'var(--text-color)' }}>
             {/* Navbar */}
-            <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-transparent'}`}>
+            <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-transparent'
+                }`}>
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex items-center justify-between h-16">
                         {menuData.settings.logo_url && (
@@ -161,7 +183,8 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                                 className={`h-8 w-auto transition-colors ${isScrolled ? 'opacity-90' : 'opacity-100'}`}
                             />
                         ) : (
-                            <h1 className={`text-xl font-semibold transition-colors ${isScrolled ? 'text-gray-900' : 'text-white'}`}>
+                            <h1 className={`text-xl font-semibold transition-colors ${isScrolled ? 'text-[var(--heading-color)]' : 'text-white'
+                                }`}>
                                 {menuData.restaurantInfo.name}
                             </h1>
                         )}
@@ -174,8 +197,10 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                                         scrollToCategory(category.title);
                                     }}
                                     className={`text-sm font-medium transition-colors ${isScrolled
-                                        ? selectedCategory === category.title ? 'text-blue-600' : 'text-gray-600'
-                                        : selectedCategory === category.title ? 'text-white' : 'text-gray-200'
+                                        ? selectedCategory === category.title
+                                            ? 'text-[var(--primary-color)]'
+                                            : 'text-[var(--text-color)] hover:text-[var(--primary-color)]'
+                                        : 'text-white hover:text-[var(--accent-color)]'
                                         }`}
                                 >
                                     {category.title}
@@ -194,9 +219,9 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
 
             {/* Mobile Menu */}
             {isMobileMenuOpen && (
-                <div className="fixed inset-0 z-40 bg-white">
+                <div className="fixed inset-0 z-40" style={{ backgroundColor: 'var(--card-bg)' }}>
                     <div className="pt-20 px-4">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Kategoriler</h2>
+                        <h2 className="text-xl font-semibold mb-4" style={{ color: colors.heading }}>Kategoriler</h2>
                         {menuData.categories.map((category: any) => (
                             <button
                                 key={category.title}
@@ -205,10 +230,14 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                                     setIsMobileMenuOpen(false);
                                     scrollToCategory(category.title);
                                 }}
-                                className="flex items-center justify-between w-full text-left py-4 border-b border-gray-100"
+                                className="flex items-center justify-between w-full text-left py-4 border-b transition-colors"
+                                style={{
+                                    borderColor: `${colors.primary}20`,
+                                    color: colors.text
+                                }}
                             >
-                                <span className="text-gray-800">{category.title}</span>
-                                <FiChevronRight className="text-gray-400" />
+                                <span>{category.title}</span>
+                                <FiChevronRight style={{ color: colors.primary }} />
                             </button>
                         ))}
                     </div>
@@ -314,33 +343,42 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
-                        className="bg-white rounded-xl shadow-lg p-6"
+                        className="rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300"
+                        style={{ backgroundColor: 'var(--card-bg)' }}
                     >
                         <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-blue-50 rounded-full">
-                                <FiClock className="text-2xl text-blue-600" />
+                            <div className="p-3 rounded-full" style={{ backgroundColor: `${colors.primary}20` }}>
+                                <FiClock className="text-2xl" style={{ color: colors.primary }} />
                             </div>
                             <div>
-                                <h3 className="font-semibold text-gray-900">Çalışma Saatleri</h3>
-                                {(() => {
-                                    const today = new Date().getDay();
-                                    const todayHours = menuData.restaurantInfo.workingHours.find((h: any) => h.day === today);
+                                <h3 className="font-medium" style={{ color: colors.heading }}>
+                                    Çalışma Saatleri
+                                </h3>
+                                <p className="text-sm" style={{ color: colors.text }}>
+                                    Açık (09:00 - 22:00)
+                                </p>
+                            </div>
+                        </div>
+                    </motion.div>
 
-                                    if (!todayHours) {
-                                        return <p className="text-sm text-red-500">Kapalı</p>;
-                                    }
-
-                                    return (
-                                        <p className="text-sm">
-                                            <span className={todayHours.is_open ? "text-green-600" : "text-red-500"}>
-                                                {todayHours.is_open ? "Açık" : "Kapalı"}
-                                            </span>
-                                            <span className="text-gray-600 ml-1">
-                                                ({todayHours.open_time.slice(0, 5)} - {todayHours.close_time.slice(0, 5)})
-                                            </span>
-                                        </p>
-                                    );
-                                })()}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                        className="rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300"
+                        style={{ backgroundColor: 'var(--card-bg)' }}
+                    >
+                        <div className="flex items-center space-x-4">
+                            <div className="p-3 rounded-full" style={{ backgroundColor: `${colors.secondary}20` }}>
+                                <FiMapPin className="text-2xl" style={{ color: colors.secondary }} />
+                            </div>
+                            <div>
+                                <h3 className="font-medium" style={{ color: colors.heading }}>
+                                    Adres
+                                </h3>
+                                <p className="text-sm" style={{ color: colors.text }}>
+                                    {menuData.restaurantInfo.address}
+                                </p>
                             </div>
                         </div>
                     </motion.div>
@@ -349,32 +387,20 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.2 }}
-                        className="bg-white rounded-xl shadow-lg p-6"
+                        className="rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300"
+                        style={{ backgroundColor: 'var(--card-bg)' }}
                     >
                         <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-blue-50 rounded-full">
-                                <FiMapPin className="text-2xl text-blue-600" />
+                            <div className="p-3 rounded-full" style={{ backgroundColor: `${colors.accent}20` }}>
+                                <FiPhone className="text-2xl" style={{ color: colors.accent }} />
                             </div>
                             <div>
-                                <h3 className="font-semibold text-gray-900">Adres</h3>
-                                <p className="text-sm text-gray-600">{menuData.restaurantInfo.address}</p>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.4 }}
-                        className="bg-white rounded-xl shadow-lg p-6"
-                    >
-                        <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-blue-50 rounded-full">
-                                <FiPhone className="text-2xl text-blue-600" />
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-gray-900">İletişim</h3>
-                                <p className="text-sm text-gray-600">{menuData.restaurantInfo.phone}</p>
+                                <h3 className="font-medium" style={{ color: colors.heading }}>
+                                    İletişim
+                                </h3>
+                                <p className="text-sm" style={{ color: colors.text }}>
+                                    {menuData.restaurantInfo.phone}
+                                </p>
                             </div>
                         </div>
                     </motion.div>
@@ -382,7 +408,11 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
             </div>
 
             {/* Mobile Category Scroll */}
-            <div className="lg:hidden sticky top-16 bg-white/95 backdrop-blur-md shadow-sm z-30">
+            <div className="lg:hidden sticky top-16 z-30"
+                style={{
+                    backgroundColor: 'var(--card-bg)',
+                    backdropFilter: 'blur(8px)'
+                }}>
                 <div className="overflow-x-auto scrollbar-hide scroll-smooth overscroll-x-contain">
                     <div className="flex items-center px-4 py-4 gap-3 min-w-full">
                         {menuData.categories.map((category: any) => (
@@ -449,7 +479,8 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ duration: 0.5 }}
-                                            className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                                            className="rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                                            style={{ backgroundColor: 'var(--card-bg)' }}
                                         >
                                             <div className="flex">
                                                 {item.image && (
@@ -461,10 +492,10 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                                                         />
                                                     </div>
                                                 )}
-                                                <div className="flex-1 p-4 md:p-6">
-                                                    <div className="flex justify-between items-start mb-3">
+                                                <div className="p-4 flex-1">
+                                                    <div className="flex justify-between items-start">
                                                         <div>
-                                                            <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1">
+                                                            <h3 className="font-medium" style={{ color: colors.heading }}>
                                                                 {item.name}
                                                             </h3>
                                                             <p className="text-sm text-gray-600 line-clamp-2 mb-2">
@@ -487,7 +518,11 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <span className="inline-block bg-blue-50 text-blue-600 text-base md:text-lg font-semibold px-3 md:px-4 py-1 rounded-full">
+                                                        <span className="inline-block text-base md:text-lg font-semibold px-3 md:px-4 py-1 rounded-full"
+                                                            style={{
+                                                                backgroundColor: 'var(--price-bg)',
+                                                                color: 'var(--price-text)'
+                                                            }}>
                                                             {formatPrice(item.price, menuData.restaurantInfo.currency)}
                                                         </span>
                                                     </div>
@@ -513,7 +548,9 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
             </AnimatePresence>
 
             {/* Footer */}
-            <footer id="contact" className="bg-gradient-to-b from-gray-50 to-gray-100 pt-16 pb-8">
+            <footer id="contact" className="pt-16 pb-8" style={{
+                background: `linear-gradient(to bottom, ${colors.card.background}, ${colors.background})`
+            }}>
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
                         {/* Restaurant Info */}
@@ -527,16 +564,22 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                                     className="h-12 w-auto mb-6"
                                 />
                             ) : (
-                                <h3 className="text-2xl font-bold text-gray-900 mb-6">{menuData.restaurantInfo.name}</h3>
+                                <h3 className="text-2xl font-bold mb-6" style={{ color: colors.heading }}>
+                                    {menuData.restaurantInfo.name}
+                                </h3>
                             )}
-                            <p className="text-gray-600 mb-6">{menuData.restaurantInfo.description}</p>
+                            <p className="mb-6" style={{ color: colors.text }}>
+                                {menuData.restaurantInfo.description}
+                            </p>
                             <div className="flex flex-col gap-4">
                                 <a
                                     href={`tel:${menuData.restaurantInfo.phone}`}
-                                    className="flex items-center gap-3 text-gray-600 hover:text-blue-600 transition-colors"
+                                    className="flex items-center gap-3 transition-colors hover:text-[var(--primary-color)]"
+                                    style={{ color: colors.text }}
                                 >
-                                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
-                                        <FiPhone className="text-blue-600" />
+                                    <div className="w-8 h-8 rounded-full flex items-center justify-center"
+                                        style={{ backgroundColor: `${colors.primary}15` }}>
+                                        <FiPhone style={{ color: colors.primary }} />
                                     </div>
                                     <span>{menuData.restaurantInfo.phone}</span>
                                 </a>
@@ -544,10 +587,12 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                                     href={`https://maps.google.com/?q=${encodeURIComponent(menuData.restaurantInfo.address)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-3 text-gray-600 hover:text-blue-600 transition-colors"
+                                    className="flex items-center gap-3 transition-colors hover:text-[var(--primary-color)]"
+                                    style={{ color: colors.text }}
                                 >
-                                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
-                                        <FiMapPin className="text-blue-600" />
+                                    <div className="w-8 h-8 rounded-full flex items-center justify-center"
+                                        style={{ backgroundColor: `${colors.primary}15` }}>
+                                        <FiMapPin style={{ color: colors.primary }} />
                                     </div>
                                     <span>{menuData.restaurantInfo.address}</span>
                                 </a>
@@ -556,75 +601,48 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
 
                         {/* Working Hours */}
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-6">Çalışma Saatleri</h3>
+                            <h3 className="text-xl font-semibold mb-6" style={{ color: colors.heading }}>
+                                Çalışma Saatleri
+                            </h3>
                             <div className="space-y-3">
-                                {(() => {
-                                    const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
-                                    const today = new Date().getDay();
-
-                                    return menuData.restaurantInfo.workingHours.map((hours: any) => {
-                                        const dayIndex = hours.day === 0 ? 6 : hours.day - 1;
-                                        const isToday = today === hours.day;
-
-                                        return (
-                                            <div
-                                                key={hours.day}
-                                                className={`flex items-center justify-between ${isToday ? 'text-blue-600 font-medium' : 'text-gray-600'
-                                                    }`}
-                                            >
-                                                <span>{days[dayIndex]}</span>
-                                                <span>
-                                                    {hours.is_open
-                                                        ? `${hours.open_time.slice(0, 5)} - ${hours.close_time.slice(0, 5)}`
-                                                        : `Kapalı (${hours.open_time.slice(0, 5)}-${hours.close_time.slice(0, 5)})`
-                                                    }
-                                                </span>
-                                            </div>
-                                        );
-                                    });
-                                })()}
-                            </div>
-                        </div>
-
-                        {/* Quick Links & Social */}
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-6">Hızlı Menü</h3>
-                            <div className="grid grid-cols-2 gap-2 mb-8">
-                                {menuData.categories.slice(0, 6).map((category: any) => (
-                                    <button
-                                        key={category.title}
-                                        onClick={() => scrollToCategory(category.title)}
-                                        className="text-left text-gray-600 hover:text-blue-600 transition-colors"
-                                    >
-                                        {category.title}
-                                    </button>
+                                {menuData.restaurantInfo.workingHours.map((hours: any) => (
+                                    <div key={hours.day} className="flex justify-between">
+                                        <span style={{ color: colors.text }}>{hours.dayName}</span>
+                                        <span style={{ color: colors.text }}>
+                                            {hours.is_open ? `${hours.open_time.slice(0, 5)} - ${hours.close_time.slice(0, 5)}` : 'Kapalı'}
+                                        </span>
+                                    </div>
                                 ))}
                             </div>
-
-                            {menuData.modules?.social?.is_active && menuData.modules.social.settings.social.accounts.length > 0 && (
-                                <div>
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Sosyal Medya</h3>
-                                    <div className="flex gap-4">
-                                        {menuData.modules.social.settings.social.accounts.map((account: any) => (
-                                            <a
-                                                key={account.id}
-                                                href={account.username}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 hover:bg-blue-100 transition-colors"
-                                            >
-                                                <SocialIcon platform={account.platform} />
-                                            </a>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
                         </div>
+
+                        {/* Social Media */}
+                        {menuData.modules?.social?.is_active && menuData.modules.social.settings.social.accounts.length > 0 && (
+                            <div>
+                                <h3 className="text-xl font-semibold mb-6" style={{ color: colors.heading }}>
+                                    Sosyal Medya
+                                </h3>
+                                <div className="flex gap-6">
+                                    {menuData.modules.social.settings.social.accounts.map((account: any) => (
+                                        <a
+                                            key={account.id}
+                                            href={account.username}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="transition-colors hover:text-[var(--primary-color)]"
+                                            style={{ color: colors.text }}
+                                        >
+                                            <SocialIcon platform={account.platform} />
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Copyright */}
-                    <div className="border-t border-gray-200 pt-8 text-center">
-                        <p className="text-gray-500 text-sm">
+                    <div className="text-center" style={{ color: colors.text }}>
+                        <p className="text-sm">
                             {menuData.restaurantInfo.footer_text} {menuData.settings.copyright_text}
                         </p>
                     </div>

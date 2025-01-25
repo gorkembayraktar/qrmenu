@@ -13,6 +13,20 @@ export interface ThemeSettings {
             use_default_image?: boolean;
             isExpanded?: boolean;
         };
+        colors?: {
+            primary: string;
+            secondary: string;
+            accent: string;
+            background: string;
+            text: string;
+            heading: string;
+            card?: {
+                background: string;
+                text: string;
+                border: string;
+                hover: string;
+            };
+        };
     };
     // Site Identity Settings
     logo_url?: string;
