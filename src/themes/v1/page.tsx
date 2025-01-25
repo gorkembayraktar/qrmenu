@@ -99,10 +99,12 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                     {menuData.restaurantInfo.name}
                   </h1>
                 )}
+                {menuData.theme.show_title_tagline && (
+                  <p className="text-xl text-white/90 mb-8 font-light max-w-2xl mx-auto">
+                    {menuData.restaurantInfo.description}
+                  </p>
+                )}
 
-                <p className="text-xl text-white/90 mb-8 font-light max-w-2xl mx-auto">
-                  {menuData.restaurantInfo.description}
-                </p>
 
                 <div className="flex items-center justify-center gap-4 mb-12">
                   <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">

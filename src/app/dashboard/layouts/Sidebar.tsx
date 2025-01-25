@@ -5,6 +5,7 @@ import { FiHome, FiList, FiSettings, FiX, FiChevronDown, FiGrid, FiPackage, FiUs
 import { BiSolidFoodMenu } from 'react-icons/bi';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { FaPaintBrush } from 'react-icons/fa';
 
 interface SidebarProps {
     sidebarOpen: boolean;
@@ -36,12 +37,18 @@ const menuItems: MenuItem[] = [
         ]
     },
     {
+        icon: FaPaintBrush,
+        label: 'Görünüm',
+        subItems: [
+            { label: 'Tema Ayarları', href: '/dashboard/theme' },
+        ]
+    },
+    {
         icon: FiSettings,
         label: 'Ayarlar',
         subItems: [
             { label: 'Genel Ayarlar', href: '/dashboard/settings' },
             { label: 'Çalışma Saatleri', href: '/dashboard/settings/working-hours' },
-            { label: 'Tema Ayarları', href: '/dashboard/theme' },
         ]
     },
     {

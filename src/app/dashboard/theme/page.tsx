@@ -12,6 +12,9 @@ import RightPanel from './components/RightPanel';
 
 const defaultTheme: ThemeSettings = {
     template: 'elegance',
+    appearance: {
+        useLogo: true
+    },
     primary_color: '#4F46E5',
     font_family: 'inter',
     button_style: 'rounded',
@@ -30,6 +33,7 @@ export default function ThemeSettingsPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [isPanelOpen, setIsPanelOpen] = useState(true);
     const initialFetchDone = useRef(false);
+    const iframeRef = useRef<HTMLIFrameElement>(null);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -54,7 +58,15 @@ export default function ThemeSettingsPage() {
 
             if (error && error.code !== 'PGRST116') throw error;
             if (data?.value) {
-                setSettings(JSON.parse(data.value) as ThemeSettings);
+                const savedSettings = JSON.parse(data.value);
+                setSettings({
+                    ...defaultTheme,
+                    ...savedSettings,
+                    appearance: {
+                        ...defaultTheme.appearance,
+                        ...savedSettings.appearance
+                    }
+                });
             } else {
                 await supabase
                     .from('settings')
@@ -72,19 +84,46 @@ export default function ThemeSettingsPage() {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const { error } = await supabase
+            // Save theme settings
+            const { error: themeError } = await supabase
                 .from('settings')
-                .update({
-                    value: JSON.stringify(settings),
-                    updated_at: new Date().toISOString()
-                })
+                .update({ value: JSON.stringify(settings) })
                 .eq('name', 'theme_settings');
 
-            if (error) throw error;
-            toast.success('Tema ayarları kaydedildi');
+            if (themeError) {
+                console.error('Error saving theme settings:', themeError);
+                throw themeError;
+            }
+
+            // Update site title and tagline
+            const promises = [
+                supabase
+                    .from('settings')
+                    .update({ value: settings.site_title || '' })
+                    .eq('name', 'restaurant_name'),
+                supabase
+                    .from('settings')
+                    .update({ value: settings.tagline || '' })
+                    .eq('name', 'restaurant_slogan')
+            ];
+
+            const results = await Promise.all(promises);
+            const errors = results.filter(result => result.error);
+
+            if (errors.length > 0) {
+                console.error('Error saving settings:', errors);
+                throw errors[0].error;
+            }
+
+            toast.success('Değişiklikler başarıyla kaydedildi');
+
+            // Reload the iframe
+            if (iframeRef.current) {
+                iframeRef.current.src = `/?preview=true&theme=${settings.template}`;
+            }
         } catch (error) {
-            console.error('Error saving theme settings:', error);
-            toast.error('Tema ayarları kaydedilirken bir hata oluştu');
+            console.error('Error saving settings:', error);
+            toast.error('Değişiklikler kaydedilirken bir hata oluştu');
         } finally {
             setIsSaving(false);
         }
@@ -112,6 +151,7 @@ export default function ThemeSettingsPage() {
                 isPanelOpen={isPanelOpen}
                 setIsPanelOpen={setIsPanelOpen}
                 router={router}
+                iframeRef={iframeRef}
             />
 
             {/* Toggle Panel Button (Mobile) */}
@@ -122,7 +162,11 @@ export default function ThemeSettingsPage() {
                 <FiChevronRight className="w-5 h-5" />
             </button>
 
-            <RightPanel settings={settings} isPanelOpen={isPanelOpen} />
+            <RightPanel
+                ref={iframeRef}
+                settings={settings}
+                isPanelOpen={isPanelOpen}
+            />
 
             {/* Overlay for mobile */}
             {isPanelOpen && (

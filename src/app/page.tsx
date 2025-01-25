@@ -190,6 +190,7 @@ async function getMenuData(): Promise<MenuData> {
       email: settingsObj.email || '',
       name: settingsObj.restaurant_name || '',
       description: settingsObj.restaurant_slogan || '',
+
       tagline: settingsObj.page_title || '',
       phone: settingsObj.phone || '',
       address: settingsObj.address || '',
