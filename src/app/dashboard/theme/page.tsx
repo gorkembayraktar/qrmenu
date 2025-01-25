@@ -44,7 +44,7 @@ export default function ThemeSettingsPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [isPanelOpen, setIsPanelOpen] = useState(true);
     const initialFetchDone = useRef(false);
-    const iframeRef = useRef<HTMLIFrameElement>(null);
+    const iframeRef = useRef<HTMLIFrameElement>(null!);
 
     useEffect(() => {
         if (!loading && !user) {
