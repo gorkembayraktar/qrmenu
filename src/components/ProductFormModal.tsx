@@ -12,7 +12,7 @@ interface Product {
     description: string;
     price: number;
     image: string | null;
-    category_id: number;
+    category_id: number | null;
     nutritional_values: {
         calories: number;
         protein: number;

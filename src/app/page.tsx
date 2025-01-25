@@ -223,7 +223,7 @@ type ThemeType = keyof typeof ThemeComponents;
 export default async function Home({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const params = await searchParams;
   const menuData = await getMenuData();
