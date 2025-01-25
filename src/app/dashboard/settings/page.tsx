@@ -26,7 +26,9 @@ export default function SettingsPage() {
         favicon_url: '',
         footer_text: '',
         copyright_text: '',
-        email: ''
+        email: '',
+        description: '',
+        keywords: ''
     });
 
     const supabase = createClientComponentClient();
@@ -76,11 +78,13 @@ export default function SettingsPage() {
         const loadingToast = toast.loading('Ayarlar kaydediliyor...');
 
         try {
+            // Tüm ayarları hazırla
             const updates = Object.entries(settings).map(([name, value]) => ({
                 name,
                 value: name === 'phone' ? value.replace(/\D/g, '') : value
             }));
 
+            // Supabase'e kaydet
             const { error } = await supabase
                 .from('settings')
                 .upsert(updates, { onConflict: 'name' });
@@ -505,6 +509,48 @@ export default function SettingsPage() {
                                         <p className="mt-2 text-xs text-gray-500">ICO veya PNG (32x32px)</p>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* SEO Settings */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div className="px-6 py-4 border-b border-gray-100">
+                        <h2 className="font-semibold text-gray-900">SEO Ayarları</h2>
+                    </div>
+                    <div className="p-6 space-y-6">
+                        <div className="grid gap-6 md:grid-cols-2">
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Meta Açıklama
+                                </label>
+                                <textarea
+                                    rows={3}
+                                    value={settings.description || ''}
+                                    onChange={(e) => handleInputChange('description', e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
+                                    placeholder="Sitenizin kısa açıklaması (150-160 karakter önerilir)"
+                                    maxLength={160}
+                                />
+                                <p className="mt-2 text-xs text-gray-500">
+                                    {(settings.description?.length || 0)}/160 karakter
+                                </p>
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Anahtar Kelimeler
+                                </label>
+                                <textarea
+                                    rows={2}
+                                    value={settings.keywords || ''}
+                                    onChange={(e) => handleInputChange('keywords', e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
+                                    placeholder="Anahtar kelimeleri virgülle ayırarak yazın"
+                                />
+                                <p className="mt-2 text-xs text-gray-500">
+                                    Örnek: restoran, cafe, menü, yemek, lokanta, ...
+                                </p>
                             </div>
                         </div>
                     </div>

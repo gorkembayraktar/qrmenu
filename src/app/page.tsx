@@ -84,6 +84,8 @@ interface MenuData {
     footer_text: string;
     email: string;
     page_title: string;
+    seo_description: string;
+    seo_keywords: string;
     keywords?: string;
     workingHours: Array<{
       day: number;
@@ -197,6 +199,8 @@ async function getMenuData(): Promise<MenuData> {
       email: settingsObj.email || '',
       name: settingsObj.restaurant_name || '',
       description: settingsObj.restaurant_slogan || '',
+      seo_description: settingsObj.description || '',
+      seo_keywords: settingsObj.keywords || '',
       page_title: settingsObj.page_title || '',
       tagline: settingsObj.page_title || '',
       phone: settingsObj.phone || '',
@@ -276,8 +280,8 @@ export const generateMetadata = async ({ searchParams }: {
     // Varsayılan metadata
     const defaultMetadata = {
       title: menuData.restaurantInfo?.page_title || 'QR Menu',
-      description: menuData.restaurantInfo?.description || 'Modern ve şık dijital menü çözümü',
-      keywords: menuData.restaurantInfo?.keywords || 'qr menu, dijital menu, restoran menüsü, cafe menüsü',
+      description: menuData.restaurantInfo?.seo_description || 'Modern ve şık dijital menü çözümü',
+      keywords: menuData.restaurantInfo?.seo_keywords || 'qr menu, dijital menu, restoran menüsü, cafe menüsü',
     };
 
     // Preview modunda ise farklı başlık göster
