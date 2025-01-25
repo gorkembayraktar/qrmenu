@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FiClock, FiMapPin, FiPhone, FiInstagram, FiStar, FiMenu, FiChevronRight, FiFacebook, FiTwitter, FiYoutube, FiMail } from 'react-icons/fi';
 import { BiSolidFoodMenu, BiSolidDish } from 'react-icons/bi';
 import { formatPrice } from '@/utils/price';
+import { v2 } from '@/mockdata/theme';
 
 const SocialIcon = ({ platform }: { platform: string }) => {
   switch (platform) {
@@ -23,6 +24,26 @@ const SocialIcon = ({ platform }: { platform: string }) => {
 export default function ThemeV2({ menuData }: { menuData: any }) {
   const [isScrolled, setIsScrolled] = useState(false);
 
+  // Varsayılan renk paleti
+  const colors = menuData.colors;
+
+  // CSS değişkenlerini ayarla
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--primary-color', colors.primary);
+    root.style.setProperty('--secondary-color', colors.secondary);
+    root.style.setProperty('--accent-color', colors.accent);
+    root.style.setProperty('--background-color', colors.background);
+    root.style.setProperty('--text-color', colors.text);
+    root.style.setProperty('--heading-color', colors.heading);
+    root.style.setProperty('--card-bg', colors.card.background);
+    root.style.setProperty('--card-text', colors.card.text);
+    root.style.setProperty('--card-border', colors.card.border);
+    root.style.setProperty('--card-hover', colors.card.hover);
+    root.style.setProperty('--price-bg', colors.price.background);
+    root.style.setProperty('--price-text', colors.price.text);
+  }, [colors]);
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 100);
@@ -34,7 +55,7 @@ export default function ThemeV2({ menuData }: { menuData: any }) {
 
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--background-color)' }}>
       {/* Header */}
       <header className={`relative ${menuData.theme?.appearance?.hero?.height === 'small' ? 'h-[40vh]' :
         menuData.theme?.appearance?.hero?.height === 'medium' ? 'h-[60vh]' :
@@ -151,12 +172,12 @@ export default function ThemeV2({ menuData }: { menuData: any }) {
 
         {/* Menu Categories */}
         <div id="menu" className="max-w-4xl mx-auto px-4 py-16">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-16">Menümüz</h2>
+          <h2 className="text-3xl font-bold text-center mb-16" style={{ color: 'var(--heading-color)' }}>Menümüz</h2>
           {menuData.categories.map((category: any, index: number) => (
             <div key={index} className="mb-16 last:mb-0">
               <div className="flex items-center justify-between mb-8">
-                <h3 className="text-2xl font-medium text-gray-900">{category.title}</h3>
-                <div className="h-[2px] flex-1 bg-gradient-to-r from-yellow-500/50 to-transparent ml-6" />
+                <h3 className="text-2xl font-medium" style={{ color: 'var(--heading-color)' }}>{category.title}</h3>
+                <div className="h-[2px] flex-1 ml-6" style={{ background: `linear-gradient(to right, var(--primary-color), transparent)` }} />
               </div>
 
               <div className="grid gap-8">
@@ -175,10 +196,8 @@ export default function ThemeV2({ menuData }: { menuData: any }) {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <h3 className="text-lg font-medium text-gray-900 group-hover:text-yellow-600 transition-colors">
-                              {item.name}
-                            </h3>
-                            <p className="mt-2 text-sm text-gray-500 line-clamp-2">{item.description}</p>
+                            <h4 className="text-lg font-medium mb-1" style={{ color: 'var(--heading-color)' }}>{item.name}</h4>
+                            <p className="text-sm mb-2" style={{ color: 'var(--text-color)' }}>{item.description}</p>
                             {item.nutritional_values && (
                               <div className="mt-3 flex flex-wrap items-center gap-2">
                                 {item.nutritional_values.calories > 0 && (
@@ -205,8 +224,11 @@ export default function ThemeV2({ menuData }: { menuData: any }) {
                             )}
                           </div>
                           <div className="flex-shrink-0">
-                            <span className="text-lg font-semibold text-yellow-600">
-                              {formatPrice(item.price, menuData.restaurantInfo.currency)}
+                            <span className="inline-block text-base md:text-lg font-semibold px-3 md:px-4 py-1 rounded-full" style={{
+                              backgroundColor: 'var(--price-bg)',
+                              color: 'var(--price-text)'
+                            }}>
+                              {formatPrice(item.price)}
                             </span>
                           </div>
                         </div>
@@ -220,83 +242,124 @@ export default function ThemeV2({ menuData }: { menuData: any }) {
         </div>
 
         {/* Restaurant Info */}
-        <div className="bg-white py-16 border-b border-gray-100">
-          <div className="max-w-3xl mx-auto px-4">
+        <div className="py-24" style={{ backgroundColor: 'var(--card-bg)' }}>
+          <div className="max-w-6xl mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-16" style={{ color: 'var(--heading-color)' }}>İletişim Bilgilerimiz</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="flex flex-col items-center text-center p-8 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors duration-300">
-                <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mb-4">
-                  <FiMail className="text-2xl text-yellow-600" />
+              {/* Email Card */}
+              <div className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-xl"
+                style={{ backgroundColor: 'var(--background-color)', border: '1px solid var(--card-border)' }}>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                  style={{ backgroundColor: 'var(--primary-color)' }} />
+                <div className="p-8">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 bg-amber-100">
+                    <FiMail className="w-8 h-8 text-amber-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--heading-color)' }}>Mail Adresimiz</h3>
+                  <a href={`mailto:${menuData.restaurantInfo.email}`}
+                    className="text-lg transition-colors duration-300 hover:opacity-75"
+                    style={{ color: 'var(--text-color)' }}>
+                    {menuData.restaurantInfo.email}
+                  </a>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Mail Adresimiz</h3>
-                <a href={`mailto:${menuData.restaurantInfo.email}`} className="text-sm text-gray-600 hover:text-yellow-600 transition-colors">
-                  {menuData.restaurantInfo.email}
-                </a>
               </div>
-              <div className="flex flex-col items-center text-center p-8 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors duration-300">
-                <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mb-4">
-                  <FiMapPin className="text-2xl text-yellow-600" />
+
+              {/* Address Card */}
+              <div className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-xl"
+                style={{ backgroundColor: 'var(--background-color)', border: '1px solid var(--card-border)' }}>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                  style={{ backgroundColor: 'var(--primary-color)' }} />
+                <div className="p-8">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 bg-amber-100">
+                    <FiMapPin className="w-8 h-8 text-amber-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--heading-color)' }}>Adresimiz</h3>
+                  <a href={menuData.restaurantInfo.maps_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-lg block transition-colors duration-300 hover:opacity-75"
+                    style={{ color: 'var(--text-color)' }}>
+                    {menuData.restaurantInfo.address}
+                  </a>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Adres</h3>
-                <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(menuData.restaurantInfo.address)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-gray-600 hover:text-yellow-600 transition-colors"
-                >
-                  {menuData.restaurantInfo.address}
-                </a>
               </div>
-              <div className="flex flex-col items-center text-center p-8 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors duration-300">
-                <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mb-4">
-                  <FiPhone className="text-2xl text-yellow-600" />
+
+              {/* Phone Card */}
+              <div className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-xl"
+                style={{ backgroundColor: 'var(--background-color)', border: '1px solid var(--card-border)' }}>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                  style={{ backgroundColor: 'var(--primary-color)' }} />
+                <div className="p-8">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 bg-amber-100">
+                    <FiPhone className="w-8 h-8 text-amber-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--heading-color)' }}>Telefon</h3>
+                  <a href={`tel:${menuData.restaurantInfo.phone}`}
+                    className="text-lg transition-colors duration-300 hover:opacity-75"
+                    style={{ color: 'var(--text-color)' }}>
+                    {menuData.restaurantInfo.phone}
+                  </a>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Telefon</h3>
-                <a href={`tel:${menuData.restaurantInfo.phone}`} className="text-sm text-gray-600 hover:text-yellow-600 transition-colors">
-                  {menuData.restaurantInfo.phone}
-                </a>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Working Hours */}
+        <div className="mb-16">
+          <div className="flex items-center justify-center space-x-4 mb-8">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-amber-100">
+              <FiClock className="w-6 h-6 text-amber-600" />
+            </div>
+            <h3 className="text-2xl font-semibold" style={{ color: 'var(--heading-color)' }}>Çalışma Saatleri</h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+            {(() => {
+              const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+              const today = new Date().getDay();
+
+              return menuData.restaurantInfo.workingHours.map((hours: any) => {
+                const dayIndex = hours.day === 0 ? 6 : hours.day - 1;
+                const isToday = today === hours.day;
+
+                return (
+                  <div
+                    key={hours.day}
+                    className="flex items-center justify-between p-4 rounded-xl transition-all duration-300 hover:shadow-md"
+                    style={{
+                      backgroundColor: isToday ? 'var(--primary-color)' : 'var(--card-bg)',
+                      border: `1px solid ${isToday ? 'var(--primary-color)' : 'var(--card-border)'}`,
+                      color: isToday ? 'white' : 'var(--text-color)'
+                    }}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 rounded-full" style={{
+                        backgroundColor: hours.is_open ? 'var(--accent-color)' : 'var(--secondary-color)'
+                      }} />
+                      <span className="font-medium">{days[dayIndex]}</span>
+                    </div>
+                    <span className="font-medium" style={{
+                      color: isToday ? 'white' : (hours.is_open ? 'var(--accent-color)' : 'var(--secondary-color)')
+                    }}>
+                      {hours.is_open
+                        ? `${hours.open_time.slice(0, 5)} - ${hours.close_time.slice(0, 5)}`
+                        : 'Kapalı'
+                      }
+                    </span>
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer id="contact" className="bg-gray-50 py-16">
+      <footer id="contact" className="bg-gradient-to-t from-gray-50 to-white pt-16 pb-8" style={{
+        background: `linear-gradient(to top, var(--card-bg), var(--background-color))`
+      }}>
         <div className="max-w-4xl mx-auto px-4">
-          {/* Working Hours */}
-          <div className="mb-12">
-            <h3 className="text-xl font-semibold text-gray-900 text-center mb-8">Çalışma Saatleri</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-lg mx-auto">
-              {(() => {
-                const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
-                const today = new Date().getDay();
-
-                return menuData.restaurantInfo.workingHours.map((hours: any) => {
-                  const dayIndex = hours.day === 0 ? 6 : hours.day - 1;
-                  const isToday = today === hours.day;
-
-                  return (
-                    <div
-                      key={hours.day}
-                      className={`flex items-center justify-between p-3 rounded-lg transition-colors duration-300 ${isToday
-                        ? 'bg-yellow-50 text-yellow-700 shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-100'
-                        }`}
-                    >
-                      <span className="font-medium">{days[dayIndex]}</span>
-                      <span className={hours.is_open ? 'text-green-600' : 'text-red-500'}>
-                        {hours.is_open
-                          ? `${hours.open_time.slice(0, 5)} - ${hours.close_time.slice(0, 5)}`
-                          : `Kapalı (${hours.open_time.slice(0, 5)}-${hours.close_time.slice(0, 5)})`
-                        }
-                      </span>
-                    </div>
-                  );
-                });
-              })()}
-            </div>
-          </div>
-
           {/* Social Media Links */}
           {menuData.modules?.social?.is_active && menuData.modules.social.settings.social.accounts.length > 0 && (
             <div className="flex justify-center space-x-8 mb-12">
@@ -306,7 +369,11 @@ export default function ThemeV2({ menuData }: { menuData: any }) {
                   href={account.username}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-yellow-600 transition-colors"
+                  className="transition-colors hover:opacity-100"
+                  style={{
+                    color: 'var(--text-color)',
+                    opacity: 0.6
+                  }}
                 >
                   <SocialIcon platform={account.platform} />
                 </a>

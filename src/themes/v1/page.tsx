@@ -5,6 +5,7 @@ import CategorySection from '@/themes/v1/components/CategorySection';
 import { FiClock, FiMapPin, FiPhone, FiInstagram, FiStar, FiFacebook, FiTwitter } from 'react-icons/fi';
 import { BiSolidFoodMenu } from 'react-icons/bi';
 import { HiOutlineMail } from 'react-icons/hi';
+import { v1 } from '@/mockdata/theme';
 
 interface WorkingHours {
   day: number;
@@ -35,6 +36,29 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
   const [activeCategory, setActiveCategory] = useState('');
   const navRef = useRef<HTMLDivElement>(null);
   let touchStartX = 0;
+
+  // Varsayılan renk paleti
+  const colors = menuData.colors;
+
+  // CSS değişkenlerini ayarla
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--primary-color', colors.primary);
+    root.style.setProperty('--secondary-color', colors.secondary);
+    root.style.setProperty('--accent-color', colors.accent);
+    root.style.setProperty('--background-color', colors.background);
+    root.style.setProperty('--text-primary', colors.text.primary);
+    root.style.setProperty('--text-secondary', colors.text.secondary);
+    root.style.setProperty('--text-light', colors.text.light);
+    root.style.setProperty('--card-bg', colors.card.background);
+    root.style.setProperty('--card-hover', colors.card.hover);
+    root.style.setProperty('--card-border', colors.card.border);
+    root.style.setProperty('--footer-bg', colors.footer.background);
+    root.style.setProperty('--footer-text', colors.footer.text);
+    root.style.setProperty('--footer-border', colors.footer.border);
+    root.style.setProperty('--overlay-dark', colors.overlay.dark);
+    root.style.setProperty('--overlay-light', colors.overlay.light);
+  }, [colors]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -174,8 +198,8 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
 
                 <div className="flex items-center justify-center gap-4 mb-12">
                   <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-                    <FiStar className="text-yellow-400" />
-                    <span className="text-white font-medium">{menuData.restaurantInfo.rating}</span>
+                    <FiStar style={{ color: 'var(--primary-color)' }} />
+                    <span style={{ color: 'var(--text-light)' }} className="font-medium">{menuData.restaurantInfo.rating}</span>
                   </div>
                   {menuData.modules?.social?.is_active && menuData.modules.social.settings.social.accounts.length > 0 && (
                     <div className="flex items-center gap-3">
@@ -185,30 +209,50 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                           href={account.username}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/20 transition-colors"
+                          className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                          style={{
+                            backgroundColor: 'var(--overlay-light)',
+                            color: 'var(--text-light)',
+                            backdropFilter: 'blur(8px)'
+                          }}
                         >
-                          {account.platform === 'instagram' && <FiInstagram className="text-white text-xl" />}
-                          {account.platform === 'facebook' && <FiFacebook className="text-white text-xl" />}
-                          {account.platform === 'twitter' && <FiTwitter className="text-white text-xl" />}
+                          {account.platform === 'instagram' && <FiInstagram className="text-xl" />}
+                          {account.platform === 'facebook' && <FiFacebook className="text-xl" />}
+                          {account.platform === 'twitter' && <FiTwitter className="text-xl" />}
                         </a>
                       ))}
                     </div>
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-white/90 text-sm max-w-3xl mx-auto">
-                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm p-3 rounded-xl">
-                    <FiMapPin className="text-primary text-xl" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm max-w-3xl mx-auto">
+                  <div className="flex items-center gap-3 p-3 rounded-xl transition-colors"
+                    style={{
+                      backgroundColor: 'var(--overlay-light)',
+                      color: 'var(--text-light)',
+                      backdropFilter: 'blur(8px)'
+                    }}>
+                    <FiMapPin style={{ color: 'var(--primary-color)' }} className="text-xl" />
                     <span>{menuData.restaurantInfo.address}</span>
                   </div>
-                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm p-3 rounded-xl">
-                    <FiPhone className="text-primary text-xl" />
+                  <div className="flex items-center gap-3 p-3 rounded-xl transition-colors"
+                    style={{
+                      backgroundColor: 'var(--overlay-light)',
+                      color: 'var(--text-light)',
+                      backdropFilter: 'blur(8px)'
+                    }}>
+                    <FiPhone style={{ color: 'var(--primary-color)' }} className="text-xl" />
                     <span>{formatPhoneNumber(menuData.restaurantInfo.phone)}</span>
                   </div>
-                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm p-3 rounded-xl">
-                    <FiClock className="text-primary text-xl" />
+                  <div className="flex items-center gap-3 p-3 rounded-xl transition-colors"
+                    style={{
+                      backgroundColor: 'var(--overlay-light)',
+                      color: 'var(--text-light)',
+                      backdropFilter: 'blur(8px)'
+                    }}>
+                    <FiClock style={{ color: 'var(--primary-color)' }} className="text-xl" />
                     <div className="text-left">
-                      <p className="text-white/60 text-xs">Bugün</p>
+                      <p style={{ color: 'var(--text-light)', opacity: 0.6 }} className="text-xs">Bugün</p>
                       {(() => {
                         const today = new Date().getDay();
                         const currentHour = new Date().getHours();
@@ -218,7 +262,7 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                         const todayHours = menuData.restaurantInfo.workingHours.find((h: WorkingHours) => h.day === today);
 
                         if (!todayHours) {
-                          return <span className="text-red-400">Kapalı</span>;
+                          return <span style={{ color: 'var(--accent-color)' }}>Kapalı</span>;
                         }
 
                         const openTime = todayHours.open_time.slice(0, 5);
@@ -226,10 +270,10 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
 
                         return (
                           <div>
-                            <span className={todayHours.is_open ? "" : "text-red-400"}>
+                            <span style={{ color: todayHours.is_open ? 'var(--accent-color)' : 'var(--secondary-color)' }}>
                               {todayHours.is_open ? "Açık" : "Kapalı"}
                             </span>
-                            <span className="text-white/60 text-xs ml-1">
+                            <span style={{ color: 'var(--text-light)', opacity: 0.6 }} className="text-xs ml-1">
                               ({openTime} - {closeTime})
                             </span>
                           </div>
@@ -244,10 +288,15 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
         </div>
 
         {/* Category Navigation */}
-        <nav className="max-w-7xl mx-auto sticky top-0 z-20 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-200">
+        <nav className="sticky top-0 z-20 shadow-sm border-b"
+          style={{
+            backgroundColor: 'var(--background-color)',
+            borderColor: 'var(--card-border)',
+            backdropFilter: 'blur(8px)'
+          }}>
           <div
             ref={navRef}
-            className="container mx-auto px-4 touch-pan-x"
+            className="max-w-7xl  mx-auto px-4 touch-pan-x"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
           >
@@ -259,11 +308,14 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                     key={category.title}
                     href={`#${categoryId}`}
                     className={`
-                                    px-4 py-3 text-sm font-medium transition-all rounded-lg
-                                    ${activeCategory === categoryId
-                        ? 'text-primary bg-primary/5 font-semibold'
-                        : 'text-gray-600 hover:text-primary hover:bg-primary/5'}
-                                `}
+                      px-4 py-3 text-sm font-medium transition-all rounded-lg
+                      ${activeCategory === categoryId ? 'font-semibold' : ''}
+                    `}
+                    style={{
+                      backgroundColor: activeCategory === categoryId ? 'var(--primary-color)' : 'transparent',
+                      color: activeCategory === categoryId ? 'white' : 'var(--text-secondary)',
+                      opacity: activeCategory === categoryId ? 1 : 0.8
+                    }}
                   >
                     {category.title}
                   </a>
@@ -287,11 +339,11 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white/80 relative">
+      <footer style={{ backgroundColor: 'var(--footer-bg)' }} className="relative">
         {/* Restaurant Shape Divider */}
         <div className="absolute top-0 left-0 w-full overflow-hidden h-16 -translate-y-[98%]">
           <svg className="absolute bottom-0 overflow-hidden" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" version="1.1" viewBox="0 0 2560 100" x="0" y="0">
-            <polygon className="fill-gray-900" points="2560 0 2560 100 0 100"></polygon>
+            <polygon style={{ fill: 'var(--footer-bg)' }} points="2560 0 2560 100 0 100"></polygon>
           </svg>
         </div>
 
@@ -312,9 +364,9 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                     />
                   </div>
                 ) : (
-                  <h3 className="text-white text-2xl font-bold mb-2">{menuData.restaurantInfo.name}</h3>
+                  <h3 style={{ color: 'var(--text-light)' }} className="text-2xl font-bold mb-2">{menuData.restaurantInfo.name}</h3>
                 )}
-                <p className="text-white/60 text-sm leading-relaxed">
+                <p style={{ color: 'var(--footer-text)', opacity: 0.6 }} className="text-sm leading-relaxed">
                   {menuData.restaurantInfo.description}
                 </p>
               </div>
@@ -322,49 +374,54 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
               <div className="flex flex-col gap-3">
                 <a
                   href={`tel:${menuData.restaurantInfo.phone}`}
-                  className="flex items-center gap-3 text-white/60 hover:text-primary transition-colors group"
+                  className="flex items-center gap-3 group transition-colors"
+                  style={{ color: 'var(--footer-text)' }}
                 >
-                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary/10">
-                    <FiPhone className="text-primary" />
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                    style={{ backgroundColor: 'var(--overlay-light)' }}>
+                    <FiPhone style={{ color: 'var(--primary-color)' }} />
                   </div>
-                  <span className="text-sm">{formatPhoneNumber(menuData.restaurantInfo.phone)}</span>
+                  <span className="text-sm group-hover:opacity-75">{formatPhoneNumber(menuData.restaurantInfo.phone)}</span>
                 </a>
 
                 <a
-                  href={`mailto:info@lezzetduragi.com`}
-                  className="flex items-center gap-3 text-white/60 hover:text-primary transition-colors group"
+                  href={`mailto:${menuData.restaurantInfo.email}`}
+                  className="flex items-center gap-3 group transition-colors"
+                  style={{ color: 'var(--footer-text)' }}
                 >
-                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary/10">
-                    <HiOutlineMail className="text-primary" />
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                    style={{ backgroundColor: 'var(--overlay-light)' }}>
+                    <HiOutlineMail style={{ color: 'var(--primary-color)' }} />
                   </div>
-                  <span className="text-sm">{menuData.restaurantInfo.email}</span>
+                  <span className="text-sm group-hover:opacity-75">{menuData.restaurantInfo.email}</span>
                 </a>
 
                 <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(menuData.restaurantInfo.address)}`}
+                  href={menuData.restaurantInfo.maps_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-white/60 hover:text-primary transition-colors group"
+                  className="flex items-center gap-3 group transition-colors"
+                  style={{ color: 'var(--footer-text)' }}
                 >
-                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary/10">
-                    <FiMapPin className="text-primary" />
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                    style={{ backgroundColor: 'var(--overlay-light)' }}>
+                    <FiMapPin style={{ color: 'var(--primary-color)' }} />
                   </div>
-                  <span className="text-sm">{menuData.restaurantInfo.address}</span>
+                  <span className="text-sm group-hover:opacity-75">{menuData.restaurantInfo.address}</span>
                 </a>
-
-
               </div>
             </div>
 
             {/* Quick Links */}
             <div>
-              <h3 className="text-white text-lg font-semibold mb-6">Menümüz</h3>
+              <h3 style={{ color: 'var(--text-light)' }} className="text-lg font-semibold mb-6">Menümüz</h3>
               <div className="grid grid-cols-2 gap-2">
                 {menuData.categories.map((category: any) => (
                   <a
                     key={category.title}
                     href={`#${category.title.toLowerCase().replace(/\s+/g, '-')}`}
-                    className="text-white/60 hover:text-primary transition-colors text-sm py-1"
+                    className="text-sm py-1 transition-colors hover:opacity-75"
+                    style={{ color: 'var(--footer-text)' }}
                   >
                     {category.title}
                   </a>
@@ -374,10 +431,11 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
 
             {/* Working Hours */}
             <div>
-              <h3 className="text-white text-lg font-semibold mb-6">Çalışma Saatleri</h3>
-              <div className="flex items-start gap-3 text-white/60 group mt-4">
-                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
-                  <FiClock className="text-primary" />
+              <h3 style={{ color: 'var(--text-light)' }} className="text-lg font-semibold mb-6">Çalışma Saatleri</h3>
+              <div className="flex items-start gap-3 mt-4">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: 'var(--overlay-light)' }}>
+                  <FiClock style={{ color: 'var(--primary-color)' }} />
                 </div>
                 <div className="flex flex-col gap-2">
                   {(() => {
@@ -385,13 +443,16 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                     const today = new Date().getDay();
 
                     return menuData.restaurantInfo.workingHours.map((hours: WorkingHours) => {
-                      const dayIndex = hours.day === 0 ? 6 : hours.day - 1; // Convert Sunday (0) to 6
+                      const dayIndex = hours.day === 0 ? 6 : hours.day - 1;
                       const isToday = today === hours.day;
 
                       return (
                         <div
                           key={hours.day}
-                          className={`flex items-center justify-between text-sm ${isToday ? 'text-primary' : ''}`}
+                          className="flex items-center justify-between text-sm"
+                          style={{
+                            color: isToday ? 'var(--primary-color)' : 'var(--footer-text)'
+                          }}
                         >
                           <span className="min-w-[100px]">{days[dayIndex]}</span>
                           <span>
@@ -410,9 +471,9 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
           </div>
 
           {/* Bottom Bar */}
-          <div className="border-t border-white/10 pt-8 text-center">
-            <p className="text-white/40 text-sm">
-              {menuData.restaurantInfo.footer_text}{menuData.settings.copyright_text}
+          <div style={{ borderColor: 'var(--footer-border)' }} className="border-t pt-8 text-center">
+            <p style={{ color: 'var(--footer-text)', opacity: 0.4 }} className="text-sm">
+              {menuData.restaurantInfo.footer_text} {menuData.settings.copyright_text}
             </p>
           </div>
         </div>

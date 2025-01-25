@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import TemplateSection from './TemplateSection';
 import SiteIdentitySection from './SiteIdentitySection';
 import AppearanceSection from './AppearanceSection';
+import ColorSection from './ColorSection';
 
 interface LeftPanelProps {
     settings: ThemeSettings;
@@ -60,16 +61,6 @@ export default function LeftPanel({
             id: 'colors',
             title: 'Renkler',
             icon: <FiDroplet className="w-5 h-5" />
-        },
-        {
-            id: 'typography',
-            title: 'Tipografi',
-            icon: <FiType className="w-5 h-5" />
-        },
-        {
-            id: 'layout',
-            title: 'Düzen',
-            icon: <FiGrid className="w-5 h-5" />
         }
     ];
 
@@ -246,6 +237,13 @@ export default function LeftPanel({
                         isUploading={isUploading}
                         handleFileUpload={handleFileUpload}
                         handleFileDelete={handleFileDelete}
+                    />
+                );
+            case 'colors':
+                return (
+                    <ColorSection
+                        settings={settings}
+                        setSettings={setSettings}
                     />
                 );
             case 'appearance':

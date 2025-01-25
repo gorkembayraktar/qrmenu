@@ -47,7 +47,7 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
     const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
 
     // Varsayılan renk paleti
-    const colors = menuData.theme?.appearance?.colors || v3.colors;
+    const colors = menuData.colors;
 
     // CSS değişkenlerini ayarla
     useEffect(() => {

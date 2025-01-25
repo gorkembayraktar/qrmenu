@@ -1,32 +1,13 @@
 import React from 'react';
 import { FiCheck } from 'react-icons/fi';
 import { ThemeSettings } from '../types';
+import { themeOptions } from '@/mockdata/theme';
 
 interface TemplateSectionProps {
     settings: ThemeSettings;
     setSettings: (settings: ThemeSettings) => void;
 }
 
-const themeOptions = [
-    {
-        id: 'elegance' as const,
-        title: 'Elegance',
-        description: 'Zarif ve minimalist tasarım (v1)',
-        image_src: '/themes/elegance.png'
-    },
-    {
-        id: 'modern-feast' as const,
-        title: 'Modern Feast',
-        description: 'Modern ve şık görünüm (v2)',
-        image_src: '/themes/modern-feast.png'
-    },
-    {
-        id: 'classic-bistro' as const,
-        title: 'Classic Bistro',
-        description: 'Klasik restoran teması (v3)',
-        image_src: '/themes/classic-bistro.png'
-    }
-];
 
 export default function TemplateSection({ settings, setSettings }: TemplateSectionProps) {
     return (

@@ -1,3 +1,4 @@
+import { v1, v2, v3 } from "@/mockdata/theme";
 import WhatsappModule from "@/modules/whatsapp/whatsappModule";
 import WifiModule from "@/modules/wifi/wifiModule";
 import ThemeV1 from "@/themes/v1/page";
@@ -15,6 +16,7 @@ interface MenuData {
   settings: {
     [key: string]: string;
   };
+  colors: any;
   categories: Array<{
     title: string;
     items: Array<{
@@ -165,7 +167,9 @@ async function getMenuData(): Promise<MenuData> {
     }
   };
 
+
   return {
+    colors: {},
     theme: themeData?.value ? JSON.parse(themeData.value) : null,
     settings: {
       restaurant_name: '',
@@ -208,6 +212,12 @@ const ThemeComponents = {
   'classic-bistro': ThemeV3
 } as const;
 
+const ThemeColors = {
+  'elegance': v1.colors,
+  'modern-feast': v2.colors,
+  'classic-bistro': v3.colors
+} as const;
+
 type ThemeType = keyof typeof ThemeComponents;
 
 export default async function Home({
@@ -220,11 +230,23 @@ export default async function Home({
   const theme = typeof params.theme === 'string' ? params.theme : 'elegance';
   const preview = params.preview === 'true';
 
+
+
   const selectedTheme = preview && theme in ThemeComponents
     ? (theme as ThemeType)
     : (menuData.theme?.template || 'elegance');
 
   const ThemeComponent = ThemeComponents[selectedTheme];
+
+  const previewColors = typeof params.colors === 'string' ? JSON.parse(params.colors) : {};
+  const defaultColors = ThemeColors[selectedTheme];
+  const colors = {
+    ...defaultColors,
+    ...menuData.theme?.appearance?.[selectedTheme]?.colors,
+    ...previewColors
+  }
+
+  menuData.colors = colors;
 
   return (
     <>
