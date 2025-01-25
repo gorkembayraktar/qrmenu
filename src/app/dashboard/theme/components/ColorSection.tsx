@@ -61,8 +61,19 @@ export default function ColorSection({ settings, setSettings }: ColorSectionProp
         newSettings.site_title = settings.site_title;
         newSettings.tagline = settings.tagline;
 
-        console.log('Varsayılan renkler:', currentDefaultColors);
-        console.log('Yeni ayarlar:', newSettings);
+        // Preview için iframe'e varsayılan renkleri gönder
+        const previewFrame = document.querySelector('iframe');
+        if (previewFrame) {
+            try {
+                const currentUrl = new URL(previewFrame.src);
+                const encodedColors = encodeURIComponent(JSON.stringify(currentDefaultColors));
+                currentUrl.searchParams.set('colors', encodedColors);
+                previewFrame.src = currentUrl.toString();
+                console.log('Varsayılan renklere dönüldü:', currentDefaultColors);
+            } catch (error) {
+                console.error('Varsayılan renklere dönerken hata:', error);
+            }
+        }
 
         setDefaultColors(currentDefaultColors);
         setSettings(newSettings);
@@ -113,6 +124,24 @@ export default function ColorSection({ settings, setSettings }: ColorSectionProp
         newSettings.favicon_url = settings.favicon_url;
         newSettings.site_title = settings.site_title;
         newSettings.tagline = settings.tagline;
+
+        // Preview için iframe'e renkleri gönder
+        const previewFrame = document.querySelector('iframe');
+        if (previewFrame) {
+            try {
+                const currentUrl = new URL(previewFrame.src);
+                const previewColors = newSettings.appearance[template].colors;
+
+                // Renkleri URL-safe bir şekilde encode et
+                const encodedColors = encodeURIComponent(JSON.stringify(previewColors));
+                currentUrl.searchParams.set('colors', encodedColors);
+
+                previewFrame.src = currentUrl.toString();
+                console.log('Preview renkleri güncellendi:', previewColors);
+            } catch (error) {
+                console.error('Preview güncellenirken hata:', error);
+            }
+        }
 
         setSettings(newSettings);
     };

@@ -238,7 +238,8 @@ export default async function Home({
 
   const ThemeComponent = ThemeComponents[selectedTheme];
 
-  const previewColors = typeof params.colors === 'string' ? JSON.parse(params.colors) : {};
+  const previewColors = typeof params.colors === 'string' ? JSON.parse(decodeURIComponent(params.colors)) : {};
+
   const defaultColors = ThemeColors[selectedTheme];
   const colors = {
     ...defaultColors,
