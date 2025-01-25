@@ -114,14 +114,12 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
             {menuData.theme?.appearance?.hero?.type === 'video' ? (
               <>
                 {menuData.theme?.appearance?.hero?.video_url?.includes('youtube.com') ? (
-                  <div className="relative w-full h-full pt-[56.25%]">
+                  <div className="relative w-full h-full">
                     <iframe
                       src={`${menuData.theme?.appearance?.hero?.video_url?.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&enablejsapi=1&playlist=${menuData.theme?.appearance?.hero?.video_url?.split('v=')[1]}`}
                       title="Hero Video"
-                      className="absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                      style={{
-                        border: 'none'
-                      }}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      style={{ border: 'none' }}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                     />
@@ -132,8 +130,7 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                     muted
                     loop
                     playsInline
-                    className="w-[100.5%] h-[100.5%] object-cover absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                    style={{ pointerEvents: 'none' }}
+                    className="absolute inset-0 w-full h-full object-cover"
                   >
                     <source src={menuData.theme?.appearance?.hero?.video_url} type="video/mp4" />
                   </video>
@@ -141,7 +138,7 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
               </>
             ) : (
               <div
-                className="w-full h-full bg-cover bg-center"
+                className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
                 style={{
                   backgroundImage: `url('${menuData.theme?.appearance?.hero?.use_default_image
                     ? menuData.theme?.appearance?.hero?.image_url_default
@@ -178,16 +175,16 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                     <img
                       src={menuData.settings.logo_url}
                       alt={menuData.restaurantInfo.name}
-                      className="h-24 w-auto"
+                      className="h-16 md:h-24 w-auto"
                     />
                   </div>
                 ) : (
-                  <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white">
+                  <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold mb-4 md:mb-6 text-white">
                     {menuData.restaurantInfo.name}
                   </h1>
                 )}
                 {menuData.theme.show_title_tagline && (
-                  <p className={`text-xl text-white/90 mb-8 font-light ${menuData.theme?.appearance?.hero?.content_alignment === 'left' || menuData.theme?.appearance?.hero?.content_alignment === 'right'
+                  <p className={`text-lg md:text-xl text-white/90 mb-6 md:mb-8 font-light ${menuData.theme?.appearance?.hero?.content_alignment === 'left' || menuData.theme?.appearance?.hero?.content_alignment === 'right'
                     ? 'max-w-xl'
                     : 'max-w-2xl mx-auto'
                     }`}>
@@ -195,8 +192,7 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                   </p>
                 )}
 
-
-                <div className="flex items-center justify-center gap-4 mb-12">
+                <div className="flex flex-row items-center gap-4 mb-8 md:mb-12">
                   <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
                     <FiStar style={{ color: 'var(--primary-color)' }} />
                     <span style={{ color: 'var(--text-light)' }} className="font-medium">{menuData.restaurantInfo.rating}</span>
@@ -225,34 +221,34 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm max-w-3xl mx-auto">
-                  <div className="flex items-center gap-3 p-3 rounded-xl transition-colors"
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm max-w-3xl w-full">
+                  <div className="flex items-center gap-2 p-2 rounded-xl transition-colors"
                     style={{
                       backgroundColor: 'var(--overlay-light)',
                       color: 'var(--text-light)',
                       backdropFilter: 'blur(8px)'
                     }}>
-                    <FiMapPin style={{ color: 'var(--primary-color)' }} className="text-xl" />
-                    <span>{menuData.restaurantInfo.address}</span>
+                    <FiMapPin style={{ color: 'var(--primary-color)' }} className="text-base flex-shrink-0" />
+                    <span className="line-clamp-2 text-xs">{menuData.restaurantInfo.address}</span>
                   </div>
-                  <div className="flex items-center gap-3 p-3 rounded-xl transition-colors"
+                  <div className="flex items-center gap-2 p-2 rounded-xl transition-colors"
                     style={{
                       backgroundColor: 'var(--overlay-light)',
                       color: 'var(--text-light)',
                       backdropFilter: 'blur(8px)'
                     }}>
-                    <FiPhone style={{ color: 'var(--primary-color)' }} className="text-xl" />
-                    <span>{formatPhoneNumber(menuData.restaurantInfo.phone)}</span>
+                    <FiPhone style={{ color: 'var(--primary-color)' }} className="text-base flex-shrink-0" />
+                    <span className="line-clamp-1 text-xs">{formatPhoneNumber(menuData.restaurantInfo.phone)}</span>
                   </div>
-                  <div className="flex items-center gap-3 p-3 rounded-xl transition-colors"
+                  <div className="col-span-2 sm:col-span-1 flex items-center gap-2 p-2 rounded-xl transition-colors"
                     style={{
                       backgroundColor: 'var(--overlay-light)',
                       color: 'var(--text-light)',
                       backdropFilter: 'blur(8px)'
                     }}>
-                    <FiClock style={{ color: 'var(--primary-color)' }} className="text-xl" />
-                    <div className="text-left">
-                      <p style={{ color: 'var(--text-light)', opacity: 0.6 }} className="text-xs">Bugün</p>
+                    <FiClock style={{ color: 'var(--primary-color)' }} className="text-base flex-shrink-0" />
+                    <div className="text-left min-w-0">
+                      <p style={{ color: 'var(--text-light)', opacity: 0.6 }} className="text-[10px]">Bugün</p>
                       {(() => {
                         const today = new Date().getDay();
                         const currentHour = new Date().getHours();
@@ -262,7 +258,7 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                         const todayHours = menuData.restaurantInfo.workingHours.find((h: WorkingHours) => h.day === today);
 
                         if (!todayHours) {
-                          return <span style={{ color: 'var(--accent-color)' }}>Kapalı</span>;
+                          return <span style={{ color: 'var(--accent-color)' }} className="text-xs">Kapalı</span>;
                         }
 
                         const openTime = todayHours.open_time.slice(0, 5);
@@ -270,10 +266,10 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
 
                         return (
                           <div>
-                            <span style={{ color: todayHours.is_open ? 'var(--accent-color)' : 'var(--secondary-color)' }}>
+                            <span style={{ color: todayHours.is_open ? 'var(--accent-color)' : 'var(--secondary-color)' }} className="text-xs">
                               {todayHours.is_open ? "Açık" : "Kapalı"}
                             </span>
-                            <span style={{ color: 'var(--text-light)', opacity: 0.6 }} className="text-xs ml-1">
+                            <span style={{ color: 'var(--text-light)', opacity: 0.6 }} className="text-[10px] ml-1">
                               ({openTime} - {closeTime})
                             </span>
                           </div>

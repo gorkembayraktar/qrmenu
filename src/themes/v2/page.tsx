@@ -66,11 +66,11 @@ export default function ThemeV2({ menuData }: { menuData: any }) {
           {menuData.theme?.appearance?.hero?.type === 'video' ? (
             <>
               {menuData.theme?.appearance?.hero?.video_url?.includes('youtube.com') ? (
-                <div className="relative w-full h-full pt-[56.25%]">
+                <div className="relative w-full h-full">
                   <iframe
                     src={`${menuData.theme?.appearance?.hero?.video_url?.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&enablejsapi=1&playlist=${menuData.theme?.appearance?.hero?.video_url?.split('v=')[1]}`}
                     title="Hero Video"
-                    className="absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                    className="absolute inset-0 w-full h-full object-cover"
                     style={{ border: 'none' }}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
@@ -82,8 +82,7 @@ export default function ThemeV2({ menuData }: { menuData: any }) {
                   muted
                   loop
                   playsInline
-                  className="w-[100.5%] h-[100.5%] object-cover absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                  style={{ pointerEvents: 'none' }}
+                  className="absolute inset-0 w-full h-full object-cover"
                 >
                   <source src={menuData.theme?.appearance?.hero?.video_url} type="video/mp4" />
                 </video>
@@ -91,7 +90,7 @@ export default function ThemeV2({ menuData }: { menuData: any }) {
             </>
           ) : (
             <div
-              className="w-full h-full bg-cover bg-center"
+              className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
               style={{
                 backgroundImage: `url('${menuData.theme?.appearance?.hero?.use_default_image
                   ? menuData.theme?.appearance?.hero?.image_url_default
@@ -119,11 +118,11 @@ export default function ThemeV2({ menuData }: { menuData: any }) {
                       <img
                         src={menuData.settings.logo_url}
                         alt={menuData.restaurantInfo.name}
-                        className={`h-10 w-auto transition-opacity duration-300 ${isScrolled ? 'opacity-100' : 'opacity-90 hover:opacity-100'}`}
+                        className={`h-8 md:h-10 w-auto transition-opacity duration-300 ${isScrolled ? 'opacity-100' : 'opacity-90 hover:opacity-100'}`}
                       />
                     </a>
                   ) : (
-                    <h1 className={`text-xl font-semibold transition-colors ${isScrolled ? 'text-gray-900' : 'text-white'}`}>
+                    <h1 className={`text-lg md:text-xl font-semibold transition-colors ${isScrolled ? 'text-gray-900' : 'text-white'}`}>
                       {menuData.restaurantInfo.name}
                     </h1>
                   )}
@@ -144,21 +143,21 @@ export default function ThemeV2({ menuData }: { menuData: any }) {
 
         {/* Header Content */}
         <div className={`relative h-full flex flex-col ${menuData.theme?.appearance?.hero?.content_alignment === 'left'
-          ? 'items-start text-left pl-8 md:pl-16'
+          ? 'items-start text-left pl-4 md:pl-8 lg:pl-16'
           : menuData.theme?.appearance?.hero?.content_alignment === 'right'
-            ? 'items-end text-right pr-8 md:pr-16'
+            ? 'items-end text-right pr-4 md:pr-8 lg:pr-16'
             : 'items-center text-center'
           } justify-center text-white px-4`}>
           {menuData.theme.show_title_tagline && (<>
-            <h1 className={`text-4xl md:text-5xl font-bold mb-4 ${menuData.theme?.appearance?.hero?.content_alignment === 'left' || menuData.theme?.appearance?.hero?.content_alignment === 'right'
-              ? 'max-w-2xl'
-              : 'text-center max-w-4xl'
+            <h1 className={`text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 ${menuData.theme?.appearance?.hero?.content_alignment === 'left' || menuData.theme?.appearance?.hero?.content_alignment === 'right'
+              ? 'max-w-xl md:max-w-2xl'
+              : 'text-center max-w-xl md:max-w-4xl'
               }`}>
               {menuData.restaurantInfo.name}
             </h1>
-            <p className={`text-lg md:text-xl text-gray-200 mb-2 ${menuData.theme?.appearance?.hero?.content_alignment === 'left' || menuData.theme?.appearance?.hero?.content_alignment === 'right'
-              ? 'max-w-xl'
-              : 'text-center max-w-2xl'
+            <p className={`text-base md:text-lg lg:text-xl text-gray-200 mb-2 ${menuData.theme?.appearance?.hero?.content_alignment === 'left' || menuData.theme?.appearance?.hero?.content_alignment === 'right'
+              ? 'max-w-lg'
+              : 'text-center max-w-xl md:max-w-2xl'
               }`}>
               {menuData.restaurantInfo.description}
             </p>
