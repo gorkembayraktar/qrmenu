@@ -2,6 +2,8 @@
 
 Modern ve kullanıcı dostu bir QR menü yönetim sistemi. Restoranlar için dijital menü oluşturma ve yönetme imkanı sunar.
 
+Live Demo: [https://qrmenu-two.vercel.app](https://qrmenu-two.vercel.app)
+
 ## Özellikler
 
 - 🎨 Modern ve responsive tasarım
@@ -92,3 +94,5 @@ git commit -m "feat: yeni özellik eklendi"
 ## Lisans
 
 Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+
+
