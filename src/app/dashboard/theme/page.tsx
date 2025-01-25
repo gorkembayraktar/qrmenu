@@ -13,8 +13,19 @@ import RightPanel from './components/RightPanel';
 const defaultTheme: ThemeSettings = {
     template: 'elegance',
     appearance: {
-        useLogo: true
+        useLogo: true,
+        hero: {
+            type: 'image',
+            overlay_enabled: true,
+            height: 'medium',
+            content_alignment: 'center',
+            image_url: '',
+            use_default_image: true,
+            image_url_default: '/images/hero.jpg',
+            video_url: ''
+        }
     },
+    show_title_tagline: true,
     primary_color: '#4F46E5',
     font_family: 'inter',
     button_style: 'rounded',
@@ -50,30 +61,64 @@ export default function ThemeSettingsPage() {
 
     const fetchSettings = async () => {
         try {
-            const { data, error } = await supabase
+            // Fetch theme settings
+            const { data: themeData, error: themeError } = await supabase
                 .from('settings')
                 .select('value')
                 .eq('name', 'theme_settings')
                 .single();
 
-            if (error && error.code !== 'PGRST116') throw error;
-            if (data?.value) {
-                const savedSettings = JSON.parse(data.value);
+            if (themeError && themeError.code !== 'PGRST116') throw themeError;
+
+            // Fetch other settings
+            const { data: otherData, error: otherError } = await supabase
+                .from('settings')
+                .select('name, value')
+                .in('name', ['logo_url', 'favicon_url', 'restaurant_name', 'restaurant_slogan']);
+
+            if (otherError) throw otherError;
+
+            // Create settings object from other settings
+            const settingsMap = otherData.reduce((acc, item) => {
+                acc[item.name] = item.value;
+                return acc;
+            }, {} as Record<string, string>);
+
+            // Merge theme settings with other settings
+            if (themeData?.value) {
+                const savedThemeSettings = JSON.parse(themeData.value);
                 setSettings({
                     ...defaultTheme,
-                    ...savedSettings,
+                    ...savedThemeSettings,
+                    logo_url: settingsMap.logo_url || savedThemeSettings.logo_url || '',
+                    favicon_url: settingsMap.favicon_url || savedThemeSettings.favicon_url || '',
+                    site_title: settingsMap.restaurant_name || savedThemeSettings.site_title || '',
+                    tagline: settingsMap.restaurant_slogan || savedThemeSettings.tagline || '',
                     appearance: {
                         ...defaultTheme.appearance,
-                        ...savedSettings.appearance
+                        ...savedThemeSettings.appearance,
+                        hero: {
+                            ...defaultTheme.appearance.hero,
+                            ...savedThemeSettings.appearance?.hero
+                        }
                     }
                 });
             } else {
+                // If no theme settings exist, create with defaults
                 await supabase
                     .from('settings')
                     .insert({
                         name: 'theme_settings',
                         value: JSON.stringify(defaultTheme)
                     });
+
+                setSettings({
+                    ...defaultTheme,
+                    logo_url: settingsMap.logo_url || '',
+                    favicon_url: settingsMap.favicon_url || '',
+                    site_title: settingsMap.restaurant_name || '',
+                    tagline: settingsMap.restaurant_slogan || ''
+                });
             }
         } catch (error) {
             console.error('Error fetching theme settings:', error);

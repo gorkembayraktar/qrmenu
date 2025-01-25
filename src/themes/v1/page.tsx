@@ -86,7 +86,9 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
             <div className="container mx-auto h-full px-4 py-8">
               <div className="flex flex-col justify-center h-full max-w-4xl mx-auto text-center">
 
-                {menuData.settings.logo_url ? (
+                {menuData.settings.logo_url && (
+                  menuData?.theme?.appearance?.useLogo == undefined ||
+                  menuData?.theme?.appearance?.useLogo == true) ? (
                   <div className="mb-8">
                     <img
                       src={menuData.settings.logo_url}

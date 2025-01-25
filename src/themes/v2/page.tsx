@@ -31,6 +31,8 @@ export default function ThemeV2({ menuData }: { menuData: any }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -44,19 +46,23 @@ export default function ThemeV2({ menuData }: { menuData: any }) {
           <div className="max-w-6xl mx-auto px-4">
             <div className="h-16 flex items-center justify-between">
               <div className="flex items-center space-x-8">
-                {menuData.settings.logo_url ? (
-                  <a href="#" className="block">
-                    <img
-                      src={menuData.settings.logo_url}
-                      alt={menuData.restaurantInfo.name}
-                      className={`h-10 w-auto transition-opacity duration-300 ${isScrolled ? 'opacity-100' : 'opacity-90 hover:opacity-100'}`}
-                    />
-                  </a>
-                ) : (
-                  <h1 className={`text-xl font-semibold transition-colors ${isScrolled ? 'text-gray-900' : 'text-white'}`}>
-                    {menuData.restaurantInfo.name}
-                  </h1>
-                )}
+                {menuData.settings.logo_url &&
+                  (
+                    menuData?.theme?.appearance?.useLogo == undefined ||
+                    menuData?.theme?.appearance?.useLogo == true)
+                  ? (
+                    <a href="#" className="block">
+                      <img
+                        src={menuData.settings.logo_url}
+                        alt={menuData.restaurantInfo.name}
+                        className={`h-10 w-auto transition-opacity duration-300 ${isScrolled ? 'opacity-100' : 'opacity-90 hover:opacity-100'}`}
+                      />
+                    </a>
+                  ) : (
+                    <h1 className={`text-xl font-semibold transition-colors ${isScrolled ? 'text-gray-900' : 'text-white'}`}>
+                      {menuData.restaurantInfo.name}
+                    </h1>
+                  )}
                 <div className={`hidden md:flex items-center space-x-1 ${isScrolled ? 'text-yellow-500' : 'text-yellow-400'}`}>
                   <FiStar />
                   <span className={`text-sm font-medium ${isScrolled ? 'text-gray-700' : 'text-white'}`}>
@@ -74,13 +80,17 @@ export default function ThemeV2({ menuData }: { menuData: any }) {
 
         {/* Header Content */}
         <div className="relative h-full flex flex-col items-center justify-center text-white px-4">
-          <BiSolidDish className="text-5xl mb-4 text-yellow-400" />
-          <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">
-            {menuData.restaurantInfo.name}
-          </h1>
-          <p className="text-lg md:text-xl text-gray-200 max-w-2xl text-center mb-2">
-            {menuData.restaurantInfo.description}
-          </p>
+
+
+          {menuData.theme.show_title_tagline && (<>
+            <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">
+              {menuData.restaurantInfo.name}
+            </h1>
+            <p className="text-lg md:text-xl text-gray-200 max-w-2xl text-center mb-2">
+              {menuData.restaurantInfo.description}
+            </p>
+          </>
+          )}
         </div>
       </header>
 

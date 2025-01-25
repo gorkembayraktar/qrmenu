@@ -1,9 +1,13 @@
 import React from 'react';
-import { FiSave, FiChevronLeft, FiChevronRight, FiLayout, FiEye, FiDroplet, FiType, FiGrid, FiImage, FiUpload, FiTrash2 } from 'react-icons/fi';
+import { FiSave, FiChevronLeft, FiChevronRight, FiLayout, FiEye, FiDroplet, FiType, FiGrid, FiImage } from 'react-icons/fi';
 import { ThemeSettings } from '@/app/dashboard/theme/types';
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import toast from 'react-hot-toast';
+import TemplateSection from './TemplateSection';
+import SiteIdentitySection from './SiteIdentitySection';
+import AppearanceSection from './AppearanceSection';
 
 interface LeftPanelProps {
     settings: ThemeSettings;
@@ -35,6 +39,7 @@ export default function LeftPanel({
     const [activeSection, setActiveSection] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const supabase = createClientComponentClient();
+
     const sections: SettingSection[] = [
         {
             id: 'template',
@@ -89,13 +94,13 @@ export default function LeftPanel({
                 }, {} as Record<string, string>);
 
                 // Update settings with fetched data
-                setSettings((prevSettings: ThemeSettings) => ({
-                    ...prevSettings,
-                    logo_url: settingsMap.logo_url || '',
-                    favicon_url: settingsMap.favicon_url || '',
-                    site_title: settingsMap.restaurant_name || '',
-                    tagline: settingsMap.restaurant_slogan || ''
-                }));
+                setSettings({
+                    ...settings,
+                    logo_url: settingsMap.logo_url || settings.logo_url || '',
+                    favicon_url: settingsMap.favicon_url || settings.favicon_url || '',
+                    site_title: settingsMap.restaurant_name || settings.site_title || '',
+                    tagline: settingsMap.restaurant_slogan || settings.tagline || ''
+                });
 
             } catch (error) {
                 console.error('Error fetching settings:', error);
@@ -105,97 +110,125 @@ export default function LeftPanel({
         fetchSettings();
     }, []);
 
-    const handleFileUpload = async (file: File, type: 'logo' | 'favicon') => {
+    const handleFileUpload = async (file: File, type: 'logo' | 'favicon' | 'hero') => {
         try {
             setIsUploading(true);
 
-            // Create form data
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('upload_preset', type === 'logo' ? 'logo_preset' : 'favicon_preset');
+            formData.append('upload_preset', type === 'logo' ? 'logo_preset' : type === 'favicon' ? 'favicon_preset' : 'hero_preset');
 
             // Add transformation parameters
             if (type === 'logo') {
                 formData.append('transformation', JSON.stringify({
-                    width: 200,
-                    height: 60,
+                    width: 300,
+                    height: 300,
                     crop: 'fit',
                     format: 'png',
                     quality: 'auto:best',
                     background: 'transparent'
                 }));
-            } else {
+            } else if (type === 'favicon') {
                 formData.append('transformation', JSON.stringify({
                     width: 32,
                     height: 32,
-                    crop: 'fill',
+                    crop: 'fit',
+                    format: 'png',
+                    quality: 'auto:best'
+                }));
+            } else {
+                formData.append('transformation', JSON.stringify({
+                    width: 1920,
+                    height: 1080,
+                    crop: 'fit',
                     format: 'png',
                     quality: 'auto:best'
                 }));
             }
 
-            // Upload to Cloudinary via our API route
             const response = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData
             });
 
-            if (!response.ok) throw new Error('Upload failed');
-
             const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Yükleme başarısız oldu');
+            }
+
             const imageUrl = data.url;
 
-            // Update settings table
-            const { error: updateError } = await supabase
-                .from('settings')
-                .update({ value: imageUrl })
-                .eq('name', type === 'logo' ? 'logo_url' : 'favicon_url');
+            // Update settings
+            if (type === 'hero') {
+                setSettings({
+                    ...settings,
+                    appearance: {
+                        ...settings.appearance,
+                        hero: {
+                            ...settings.appearance.hero,
+                            image_url: imageUrl,
+                            use_default_image: false
+                        }
+                    }
+                });
+            } else {
+                setSettings({
+                    ...settings,
+                    [type === 'logo' ? 'logo_url' : 'favicon_url']: imageUrl
+                });
+            }
 
-            if (updateError) throw updateError;
-
-            // Update local state
-            setSettings({
-                ...settings,
-                [type === 'logo' ? 'logo_url' : 'favicon_url']: imageUrl
-            });
+            // Show success message
+            toast.success(`${type === 'logo' ? 'Logo' : type === 'favicon' ? 'Favicon' : 'Hero Görseli'} başarıyla yüklendi`);
 
             // Reload iframe
             if (iframeRef.current) {
                 iframeRef.current.src = `/?preview=true&theme=${settings.template}`;
             }
 
-        } catch (error) {
-            console.error('Error uploading file:', error);
-            // TODO: Show error message to user
+        } catch (error: any) {
+            console.error('Upload error:', error);
+            toast.error(`${type === 'logo' ? 'Logo' : type === 'favicon' ? 'Favicon' : 'Hero Görseli'} yüklenirken bir hata oluştu`);
         } finally {
             setIsUploading(false);
         }
     };
 
-    const handleFileDelete = async (type: 'logo' | 'favicon') => {
+    const handleFileDelete = async (type: 'logo' | 'favicon' | 'hero') => {
         try {
             setIsUploading(true);
 
-            // Update settings table
-            await supabase
-                .from('settings')
-                .update({ value: '' })
-                .eq('name', `${type}_url`);
+            if (type === 'hero') {
+                setSettings({
+                    ...settings,
+                    appearance: {
+                        ...settings.appearance,
+                        hero: {
+                            ...settings.appearance.hero,
+                            image_url: '',
+                            use_default_image: true
+                        }
+                    }
+                });
+            } else {
+                setSettings({
+                    ...settings,
+                    [type === 'logo' ? 'logo_url' : 'favicon_url']: ''
+                });
+            }
 
-            // Update local state
-            setSettings({
-                ...settings,
-                [type === 'logo' ? 'logo_url' : 'favicon_url']: ''
-            });
+            // Show success message
+            toast.success(`${type === 'logo' ? 'Logo' : type === 'favicon' ? 'Favicon' : 'Hero Görseli'} başarıyla kaldırıldı`);
 
             // Reload iframe
             if (iframeRef.current) {
                 iframeRef.current.src = `/?preview=true&theme=${settings.template}`;
             }
 
-        } catch (error) {
-            console.error('Error deleting file:', error);
-            // TODO: Show error message to user
+        } catch (error: any) {
+            console.error('Delete error:', error);
+            toast.error(`${type === 'logo' ? 'Logo' : type === 'favicon' ? 'Favicon' : 'Hero Görseli'} kaldırılırken bir hata oluştu`);
         } finally {
             setIsUploading(false);
         }
@@ -203,217 +236,27 @@ export default function LeftPanel({
 
     const renderSectionContent = () => {
         switch (activeSection) {
+            case 'template':
+                return <TemplateSection settings={settings} setSettings={setSettings} />;
             case 'site-identity':
                 return (
-                    <div className="space-y-6">
-                        {/* Logo Section */}
-                        <div>
-                            <h3 className="text-sm font-medium mb-2">Logo</h3>
-                            <p className="text-xs text-gray-400 mb-4">Önerilen boyut: 200x60 piksel</p>
-                            {settings.logo_url ? (
-                                <div className="space-y-3">
-                                    <div className="bg-gray-800 rounded-lg p-4 flex items-center justify-center">
-                                        <img
-                                            src={settings.logo_url}
-                                            alt="Site Logo"
-                                            className="max-h-16 max-w-full object-contain"
-                                        />
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => handleFileDelete('logo')}
-                                            disabled={isUploading}
-                                            className="text-xs px-3 py-1.5 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded flex items-center gap-1.5 disabled:opacity-50"
-                                        >
-                                            <FiTrash2 className="w-3.5 h-3.5" />
-                                            Kaldır
-                                        </button>
-                                        <label className="text-xs px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded cursor-pointer flex items-center gap-1.5 disabled:opacity-50">
-                                            <FiUpload className="w-3.5 h-3.5" />
-                                            {isUploading ? 'Yükleniyor...' : 'Logo değiştir'}
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                className="hidden"
-                                                disabled={isUploading}
-                                                onChange={(e) => {
-                                                    const file = e.target.files?.[0];
-                                                    if (file) {
-                                                        handleFileUpload(file, 'logo');
-                                                    }
-                                                }}
-                                            />
-                                        </label>
-                                    </div>
-                                </div>
-                            ) : (
-                                <label className="text-xs px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded cursor-pointer flex items-center gap-1.5 w-fit disabled:opacity-50">
-                                    <FiUpload className="w-3.5 h-3.5" />
-                                    {isUploading ? 'Yükleniyor...' : 'Logo seç'}
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        disabled={isUploading}
-                                        onChange={(e) => {
-                                            const file = e.target.files?.[0];
-                                            if (file) {
-                                                handleFileUpload(file, 'logo');
-                                            }
-                                        }}
-                                    />
-                                </label>
-                            )}
-                        </div>
-
-                        {/* Favicon Section */}
-                        <div>
-                            <h3 className="text-sm font-medium mb-2">Favicon</h3>
-                            <p className="text-xs text-gray-400 mb-4">Önerilen boyut: 32x32 piksel</p>
-                            {settings.favicon_url ? (
-                                <div className="space-y-3">
-                                    <div className="bg-gray-800 rounded-lg p-4 flex items-center justify-center">
-                                        <img
-                                            src={settings.favicon_url}
-                                            alt="Site Favicon"
-                                            className="w-8 h-8 object-contain"
-                                        />
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => handleFileDelete('favicon')}
-                                            disabled={isUploading}
-                                            className="text-xs px-3 py-1.5 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded flex items-center gap-1.5 disabled:opacity-50"
-                                        >
-                                            <FiTrash2 className="w-3.5 h-3.5" />
-                                            Kaldır
-                                        </button>
-                                        <label className="text-xs px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded cursor-pointer flex items-center gap-1.5 disabled:opacity-50">
-                                            <FiUpload className="w-3.5 h-3.5" />
-                                            {isUploading ? 'Yükleniyor...' : 'Favicon değiştir'}
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                className="hidden"
-                                                disabled={isUploading}
-                                                onChange={(e) => {
-                                                    const file = e.target.files?.[0];
-                                                    if (file) {
-                                                        handleFileUpload(file, 'favicon');
-                                                    }
-                                                }}
-                                            />
-                                        </label>
-                                    </div>
-                                </div>
-                            ) : (
-                                <label className="text-xs px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded cursor-pointer flex items-center gap-1.5 w-fit disabled:opacity-50">
-                                    <FiUpload className="w-3.5 h-3.5" />
-                                    {isUploading ? 'Yükleniyor...' : 'Favicon seç'}
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        disabled={isUploading}
-                                        onChange={(e) => {
-                                            const file = e.target.files?.[0];
-                                            if (file) {
-                                                handleFileUpload(file, 'favicon');
-                                            }
-                                        }}
-                                    />
-                                </label>
-                            )}
-                        </div>
-
-                        {/* Site Title */}
-                        <div>
-                            <label className="block text-sm font-medium mb-2">
-                                Site başlığı
-                            </label>
-                            <input
-                                type="text"
-                                value={settings.site_title || ''}
-                                onChange={(e) => setSettings({ ...settings, site_title: e.target.value })}
-                                className="w-full px-3 py-2 bg-gray-700 rounded text-sm focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                                placeholder="Sitenizin adı"
-                            />
-                        </div>
-
-                        {/* Slogan */}
-                        <div>
-                            <label className="block text-sm font-medium mb-2">
-                                Slogan
-                            </label>
-                            <input
-                                type="text"
-                                value={settings.tagline || ''}
-                                onChange={(e) => setSettings({ ...settings, tagline: e.target.value })}
-                                className="w-full px-3 py-2 bg-gray-700 rounded text-sm focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                                placeholder="Kısa bir açıklama"
-                            />
-                        </div>
-
-                        {/* Show Title and Tagline Toggle */}
-                        <div>
-                            <label className="flex items-center justify-between mb-2">
-                                <span className="text-sm">Site başlığı ve sloganını göster</span>
-                                <div className="relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-gray-700"
-                                    onClick={() => setSettings({
-                                        ...settings,
-                                        show_title_tagline: !settings.show_title_tagline
-                                    })}
-                                >
-                                    <span
-                                        aria-hidden="true"
-                                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${settings.show_title_tagline ? 'translate-x-4' : 'translate-x-0'}`}
-                                    />
-                                </div>
-                            </label>
-                            <p className="text-xs text-gray-400">Logo varsa başlık yerine logoyu göster</p>
-                        </div>
-                    </div>
-                );
-            case 'template':
-                return (
-                    <div className="space-y-2">
-                        {['elegance', 'modern-feast', 'classic-bistro'].map((template) => (
-                            <button
-                                key={template}
-                                onClick={() => setSettings({ ...settings, template: template as ThemeSettings['template'] })}
-                                className={`w-full p-3 text-left text-sm rounded ${settings.template === template ? 'bg-blue-500' : 'hover:bg-[#3c434a]'}`}
-                            >
-                                {template === 'elegance' ? 'Elegance (v1)' :
-                                    template === 'modern-feast' ? 'Modern Feast (v2)' :
-                                        'Classic Bistro (v3)'}
-                            </button>
-                        ))}
-                    </div>
+                    <SiteIdentitySection
+                        settings={settings}
+                        setSettings={setSettings}
+                        isUploading={isUploading}
+                        handleFileUpload={handleFileUpload}
+                        handleFileDelete={handleFileDelete}
+                    />
                 );
             case 'appearance':
                 return (
-                    <div className="space-y-4">
-                        <div>
-                            <label className="flex items-center justify-between mb-2">
-                                <span className="text-sm">Logo Kullan</span>
-                                <div className="relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-gray-700"
-                                    onClick={() => setSettings({
-                                        ...settings,
-                                        appearance: {
-                                            ...settings.appearance,
-                                            useLogo: !settings.appearance.useLogo
-                                        }
-                                    })}
-                                >
-                                    <span
-                                        aria-hidden="true"
-                                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${settings.appearance.useLogo ? 'translate-x-4' : 'translate-x-0'}`}
-                                    />
-                                </div>
-                            </label>
-                            <p className="text-xs text-gray-400">Logo varsa başlık yerine logoyu göster</p>
-                        </div>
-                    </div>
+                    <AppearanceSection
+                        settings={settings}
+                        setSettings={setSettings}
+                        isUploading={isUploading}
+                        handleFileUpload={handleFileUpload}
+                        handleFileDelete={handleFileDelete}
+                    />
                 );
             default:
                 return null;
@@ -423,7 +266,7 @@ export default function LeftPanel({
     return (
         <>
             <div className={`fixed left-0 top-0 h-full bg-[#23282d] text-gray-100 shadow-lg transition-transform duration-300 z-20 w-[300px] 
-                ${isPanelOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            ${isPanelOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="h-full flex flex-col">
                     {/* Panel Header */}
                     <div className="bg-[#1e1e1e] p-3 flex items-center justify-between">
@@ -488,7 +331,7 @@ export default function LeftPanel({
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: index * 0.05 }}
                                             onClick={() => setActiveSection(section.id)}
-                                            className="w-full p-4 flex items-center justify-between hover:bg-[#32373c] transition-colors border-b border-[#32373c]"
+                                            className={`${section.id == 'template' ? 'my-5' : ''} w-full p-4 flex items-center justify-between hover:bg-[#32373c] transition-colors border-b border-[#32373c]`}
                                         >
                                             <div className="flex items-center gap-3">
                                                 {section.icon}
@@ -521,7 +364,7 @@ export default function LeftPanel({
             <button
                 onClick={() => setIsPanelOpen(true)}
                 className={`fixed left-0 top-1/2 -translate-y-1/2 bg-[#23282d] text-gray-100 p-2 rounded-r shadow-lg transition-transform duration-300 z-20
-                    ${isPanelOpen ? 'translate-x-[-100%]' : 'translate-x-0'}`}
+            ${isPanelOpen ? 'translate-x-[-100%]' : 'translate-x-0'}`}
             >
                 <FiChevronRight className="w-5 h-5" />
             </button>

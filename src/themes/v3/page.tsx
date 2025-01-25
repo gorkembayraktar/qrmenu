@@ -224,7 +224,9 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                 </div>
                 <div className="relative h-full flex flex-col items-center justify-center text-white px-4">
 
-                    {menuData.settings.logo_url ? (
+                    {menuData.settings.logo_url && (
+                        menuData?.theme?.appearance?.useLogo == undefined ||
+                        menuData?.theme?.appearance?.useLogo == true) ? (
                         <img
                             src={menuData.settings.logo_url}
                             alt={menuData.restaurantInfo.name}

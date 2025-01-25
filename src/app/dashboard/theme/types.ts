@@ -2,6 +2,16 @@ export interface ThemeSettings {
     template: 'elegance' | 'modern-feast' | 'classic-bistro';
     appearance: {
         useLogo: boolean;
+        hero: {
+            type: 'image' | 'video';
+            overlay_enabled: boolean;
+            height: 'small' | 'medium' | 'large' | 'full';
+            content_alignment: 'left' | 'center' | 'right';
+            image_url?: string;
+            video_url?: string;
+            image_url_default?: string;
+            use_default_image?: boolean;
+        };
     };
     // Site Identity Settings
     logo_url?: string;
