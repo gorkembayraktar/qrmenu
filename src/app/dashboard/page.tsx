@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/utils/supabase';
-import { FiUsers, FiShoppingBag, FiStar, FiTrendingUp, FiGrid, FiCoffee, FiWifi, FiShare2, FiImage } from 'react-icons/fi';
+import { FiUsers, FiShoppingBag, FiStar, FiTrendingUp, FiGrid, FiCoffee, FiWifi, FiShare2, FiImage, FiMessageCircle } from 'react-icons/fi';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -191,11 +191,11 @@ export default function DashboardPage() {
 
     const modulesList = [
         {
-            icon: FiCoffee,
-            title: 'Menü Modülü',
-            description: 'Ürünlerinizi kategorilere ayırarak düzenleyin',
-            isActive: true,
-            path: '/dashboard/menu'
+            icon: FiMessageCircle,
+            title: 'Whatsapp Modülü',
+            description: 'Whatsapp ile müşterilerinizle iletişime geçebilirsiniz',
+            isActive: modules.find(m => m.id === 'whatsapp')?.is_active || false,
+            path: '/dashboard/modules/whatsapp'
         },
         {
             icon: FiWifi,

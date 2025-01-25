@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { FiMenu, FiBell } from 'react-icons/fi';
+import { FiMenu, FiBell, FiHome } from 'react-icons/fi';
 import Sidebar from './layouts/Sidebar';
 import NotificationDropdown from './components/NotificationDropdown';
 import UserMenu from './components/UserMenu';
@@ -65,6 +65,9 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                             </div>
 
                             <div className="flex items-center space-x-1 md:space-x-3">
+                                <a href="/" target="_blank" className="p-1.5 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100/50 transition-all">
+                                    <FiHome className="h-5 w-5" />
+                                </a>
                                 <div className="relative">
                                     <button
                                         id="notification-button"
