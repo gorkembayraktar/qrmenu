@@ -11,6 +11,7 @@ export interface ThemeSettings {
             video_url?: string;
             image_url_default?: string;
             use_default_image?: boolean;
+            isExpanded?: boolean;
         };
     };
     // Site Identity Settings
