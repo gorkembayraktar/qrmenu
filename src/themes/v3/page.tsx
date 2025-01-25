@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { FiClock, FiMapPin, FiPhone, FiInstagram, FiStar, FiMenu, FiChevronRight, FiX, FiFacebook, FiTwitter, FiYoutube } from 'react-icons/fi';
+import { FiClock, FiMapPin, FiPhone, FiInstagram, FiStar, FiMenu, FiChevronRight, FiX, FiFacebook, FiTwitter, FiYoutube, FiMail } from 'react-icons/fi';
 import { BiSolidFoodMenu, BiSolidDish } from 'react-icons/bi';
 import { GiKnifeFork } from 'react-icons/gi';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,6 +24,24 @@ interface MenuItem {
     image?: string;
     nutritionalValues?: NutritionalInfo;
 }
+
+const formatPhoneNumber = (phoneNumber: string) => {
+    // Remove any non-digit characters
+    const cleaned = phoneNumber.replace(/\D/g, '');
+
+    // Format for Turkish phone numbers
+    if (cleaned.length >= 10) {
+        // Check if number starts with country code
+        if (cleaned.startsWith('90')) {
+            return `90 (${cleaned.slice(2, 5)}) ${cleaned.slice(5, 8)} ${cleaned.slice(8, 10)} ${cleaned.slice(10)}`;
+        }
+        // For numbers without country code
+        return `90 (${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)} ${cleaned.slice(6, 8)} ${cleaned.slice(8)}`;
+    }
+
+    // If number format is unknown, just add spaces every 3 digits
+    return cleaned.replace(/(\d{3})(?=\d)/g, '$1 ');
+};
 
 const SocialIcon = ({ platform }: { platform: string }) => {
     switch (platform) {
@@ -399,7 +417,7 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                                     İletişim
                                 </h3>
                                 <p className="text-sm" style={{ color: colors.text }}>
-                                    {menuData.restaurantInfo.phone}
+                                    {formatPhoneNumber(menuData.restaurantInfo.phone)}
                                 </p>
                             </div>
                         </div>
@@ -548,89 +566,92 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
             </AnimatePresence>
 
             {/* Footer */}
-            <footer id="contact" className="pt-16 pb-8" style={{
-                background: `linear-gradient(to bottom, ${colors.card.background}, ${colors.background})`
-            }}>
-                <div className="max-w-7xl mx-auto px-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-                        {/* Restaurant Info */}
+            <footer id="contact" className="py-12" style={{ backgroundColor: colors.card.background }}>
+                <div className="max-w-6xl mx-auto px-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Contact Info */}
                         <div>
-                            {menuData.settings.logo_url && (
-                                menuData?.theme?.appearance?.useLogo == undefined ||
-                                menuData?.theme?.appearance?.useLogo == true) ? (
-                                <img
-                                    src={menuData.settings.logo_url}
-                                    alt={menuData.restaurantInfo.name}
-                                    className="h-12 w-auto mb-6"
-                                />
-                            ) : (
-                                <h3 className="text-2xl font-bold mb-6" style={{ color: colors.heading }}>
-                                    {menuData.restaurantInfo.name}
-                                </h3>
-                            )}
-                            <p className="mb-6" style={{ color: colors.text }}>
-                                {menuData.restaurantInfo.description}
-                            </p>
-                            <div className="flex flex-col gap-4">
+                            <h4 className="text-base font-semibold mb-4" style={{ color: colors.heading }}>
+                                İletişim
+                            </h4>
+                            <div className="space-y-2">
                                 <a
                                     href={`tel:${menuData.restaurantInfo.phone}`}
-                                    className="flex items-center gap-3 transition-colors hover:text-[var(--primary-color)]"
-                                    style={{ color: colors.text }}
+                                    className="flex items-center gap-2 transition-opacity hover:opacity-80"
+                                    style={{ color: colors.heading }}
                                 >
-                                    <div className="w-8 h-8 rounded-full flex items-center justify-center"
-                                        style={{ backgroundColor: `${colors.primary}15` }}>
-                                        <FiPhone style={{ color: colors.primary }} />
-                                    </div>
-                                    <span>{menuData.restaurantInfo.phone}</span>
+                                    <FiPhone className="w-4 h-4" style={{ color: colors.primary }} />
+                                    <span className="text-sm font-medium">{formatPhoneNumber(menuData.restaurantInfo.phone)}</span>
+                                </a>
+                                <a
+                                    href={`tel:${menuData.restaurantInfo.phone}`}
+                                    className="flex items-center gap-2 transition-opacity hover:opacity-80"
+                                    style={{ color: colors.heading }}
+                                >
+                                    <FiMail className="w-4 h-4" style={{ color: colors.primary }} />
+                                    <span className="text-sm font-medium">{menuData.restaurantInfo.email}</span>
                                 </a>
                                 <a
                                     href={`https://maps.google.com/?q=${encodeURIComponent(menuData.restaurantInfo.address)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-3 transition-colors hover:text-[var(--primary-color)]"
-                                    style={{ color: colors.text }}
+                                    className="flex items-center gap-2 transition-opacity hover:opacity-80"
+                                    style={{ color: colors.heading }}
                                 >
-                                    <div className="w-8 h-8 rounded-full flex items-center justify-center"
-                                        style={{ backgroundColor: `${colors.primary}15` }}>
-                                        <FiMapPin style={{ color: colors.primary }} />
-                                    </div>
-                                    <span>{menuData.restaurantInfo.address}</span>
+                                    <FiMapPin className="w-4 h-4" style={{ color: colors.secondary }} />
+                                    <span className="text-sm font-medium">{menuData.restaurantInfo.address}</span>
                                 </a>
                             </div>
                         </div>
 
                         {/* Working Hours */}
                         <div>
-                            <h3 className="text-xl font-semibold mb-6" style={{ color: colors.heading }}>
+                            <h4 className="text-base font-semibold mb-4" style={{ color: colors.heading }}>
                                 Çalışma Saatleri
-                            </h3>
-                            <div className="space-y-3">
-                                {menuData.restaurantInfo.workingHours.map((hours: any) => (
-                                    <div key={hours.day} className="flex justify-between">
-                                        <span style={{ color: colors.text }}>{hours.dayName}</span>
-                                        <span style={{ color: colors.text }}>
-                                            {hours.is_open ? `${hours.open_time.slice(0, 5)} - ${hours.close_time.slice(0, 5)}` : 'Kapalı'}
-                                        </span>
-                                    </div>
-                                ))}
+                            </h4>
+                            <div className="space-y-1">
+                                {menuData.restaurantInfo.workingHours.map((hours: any) => {
+                                    const isToday = new Date().getDay() === hours.day;
+                                    const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+                                    const dayName = days[hours.day];
+                                    return (
+                                        <div key={hours.day} className="flex justify-between items-center">
+                                            <span className="text-sm font-medium" style={{
+                                                color: isToday ? colors.primary : colors.heading,
+                                                opacity: 0.95
+                                            }}>
+                                                {dayName}
+                                            </span>
+                                            <span className="text-sm font-medium" style={{
+                                                color: colors.heading,
+                                                opacity: hours.is_open ? 0.95 : 0.7
+                                            }}>
+                                                {hours.is_open ? `${hours.open_time.slice(0, 5)} - ${hours.close_time.slice(0, 5)}` : 'Kapalı'}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
 
                         {/* Social Media */}
                         {menuData.modules?.social?.is_active && menuData.modules.social.settings.social.accounts.length > 0 && (
                             <div>
-                                <h3 className="text-xl font-semibold mb-6" style={{ color: colors.heading }}>
+                                <h4 className="text-base font-semibold mb-4" style={{ color: colors.heading }}>
                                     Sosyal Medya
-                                </h3>
-                                <div className="flex gap-6">
+                                </h4>
+                                <div className="flex gap-3">
                                     {menuData.modules.social.settings.social.accounts.map((account: any) => (
                                         <a
                                             key={account.id}
                                             href={account.username}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="transition-colors hover:text-[var(--primary-color)]"
-                                            style={{ color: colors.text }}
+                                            className="w-8 h-8 rounded-full flex items-center justify-center transition-transform hover:scale-110"
+                                            style={{
+                                                backgroundColor: `${colors.primary}15`,
+                                                color: colors.primary
+                                            }}
                                         >
                                             <SocialIcon platform={account.platform} />
                                         </a>
@@ -641,8 +662,8 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                     </div>
 
                     {/* Copyright */}
-                    <div className="text-center" style={{ color: colors.text }}>
-                        <p className="text-sm">
+                    <div className="mt-8 pt-6 border-t text-center" style={{ borderColor: colors.card.border }}>
+                        <p className="text-xs font-medium" style={{ color: colors.heading, opacity: 0.8 }}>
                             {menuData.restaurantInfo.footer_text} {menuData.settings.copyright_text}
                         </p>
                     </div>
