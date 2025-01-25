@@ -152,7 +152,9 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
             <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-transparent'}`}>
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex items-center justify-between h-16">
-                        {menuData.settings.logo_url ? (
+                        {menuData.settings.logo_url && (
+                            menuData?.theme?.appearance?.useLogo == undefined ||
+                            menuData?.theme?.appearance?.useLogo == true) ? (
                             <img
                                 src={menuData.settings.logo_url}
                                 alt={menuData.restaurantInfo.name}
@@ -214,33 +216,91 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
             )}
 
             {/* Hero Section */}
-            <div className="relative h-[60vh] bg-gradient-to-r from-gray-900 to-gray-800 overflow-hidden">
+            <div className={`relative ${menuData.theme?.appearance?.hero?.height === 'small' ? 'h-[40vh]' :
+                menuData.theme?.appearance?.hero?.height === 'medium' ? 'h-[60vh]' :
+                    menuData.theme?.appearance?.hero?.height === 'large' ? 'h-[80vh]' :
+                        'h-[100vh]'
+                } min-h-[400px] bg-gradient-to-r from-gray-900 to-gray-800 overflow-hidden`}>
                 <div className="absolute inset-0">
-                    <img
-                        src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80"
-                        alt="Restaurant"
-                        className="w-full h-full object-cover opacity-50"
-                    />
+                    {menuData.theme?.appearance?.hero?.type === 'video' ? (
+                        <>
+                            {menuData.theme?.appearance?.hero?.video_url?.includes('youtube.com') ? (
+                                <div className="relative w-full h-full pt-[56.25%]">
+                                    <iframe
+                                        src={`${menuData.theme?.appearance?.hero?.video_url?.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&enablejsapi=1&playlist=${menuData.theme?.appearance?.hero?.video_url?.split('v=')[1]}`}
+                                        title="Hero Video"
+                                        className="absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                                        style={{ border: 'none' }}
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                    />
+                                </div>
+                            ) : (
+                                <video
+                                    autoPlay
+                                    muted
+                                    loop
+                                    playsInline
+                                    className="w-[100.5%] h-[100.5%] object-cover absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                                    style={{ pointerEvents: 'none' }}
+                                >
+                                    <source src={menuData.theme?.appearance?.hero?.video_url} type="video/mp4" />
+                                </video>
+                            )}
+                        </>
+                    ) : (
+                        <img
+                            src={menuData.theme?.appearance?.hero?.use_default_image
+                                ? menuData.theme?.appearance?.hero?.image_url_default
+                                : menuData.theme?.appearance?.hero?.image_url || '/images/hero.jpg'
+                            }
+                            alt="Restaurant"
+                            className="w-full h-full object-cover"
+                        />
+                    )}
+                    {menuData.theme?.appearance?.hero?.overlay_enabled && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-gray-900/90 to-gray-800/90" />
+                    )}
                 </div>
-                <div className="relative h-full flex flex-col items-center justify-center text-white px-4">
-
+                <div className={`relative h-full flex flex-col ${menuData.theme?.appearance?.hero?.content_alignment === 'left'
+                    ? 'items-start text-left pl-8 md:pl-16'
+                    : menuData.theme?.appearance?.hero?.content_alignment === 'right'
+                        ? 'items-end text-right pr-8 md:pr-16'
+                        : 'items-center text-center'
+                    } justify-center text-white px-4`}>
                     {menuData.settings.logo_url && (
                         menuData?.theme?.appearance?.useLogo == undefined ||
                         menuData?.theme?.appearance?.useLogo == true) ? (
                         <img
                             src={menuData.settings.logo_url}
                             alt={menuData.restaurantInfo.name}
-                            className="h-16 w-auto mb-4"
+                            className={`h-16 w-auto mb-4 ${menuData.theme?.appearance?.hero?.content_alignment === 'left'
+                                ? 'ml-0'
+                                : menuData.theme?.appearance?.hero?.content_alignment === 'right'
+                                    ? 'ml-auto'
+                                    : 'mx-auto'
+                                }`}
                         />
                     ) : (
-                        <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">
+                        <h1 className={`text-4xl md:text-5xl font-bold mb-4 ${menuData.theme?.appearance?.hero?.content_alignment === 'left' || menuData.theme?.appearance?.hero?.content_alignment === 'right'
+                            ? 'max-w-2xl'
+                            : 'text-center max-w-4xl'
+                            }`}>
                             {menuData.restaurantInfo.name}
                         </h1>
                     )}
-                    <p className="text-lg md:text-xl text-gray-200 max-w-2xl text-center mb-2">
+                    <p className={`text-lg md:text-xl text-gray-200 mb-2 ${menuData.theme?.appearance?.hero?.content_alignment === 'left' || menuData.theme?.appearance?.hero?.content_alignment === 'right'
+                        ? 'max-w-xl'
+                        : 'text-center max-w-2xl'
+                        }`}>
                         {menuData.restaurantInfo.description}
                     </p>
-                    <div className="flex items-center justify-center space-x-2">
+                    <div className={`flex items-center space-x-2 ${menuData.theme?.appearance?.hero?.content_alignment === 'left'
+                        ? 'justify-start'
+                        : menuData.theme?.appearance?.hero?.content_alignment === 'right'
+                            ? 'justify-end'
+                            : 'justify-center'
+                        }`}>
                         <FiStar className="text-yellow-400" />
                         <span className="text-yellow-400 font-medium">{menuData.restaurantInfo.rating}</span>
                     </div>
@@ -458,7 +518,9 @@ export default function ThemeV3({ menuData }: { menuData: any }) {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
                         {/* Restaurant Info */}
                         <div>
-                            {menuData.settings.logo_url ? (
+                            {menuData.settings.logo_url && (
+                                menuData?.theme?.appearance?.useLogo == undefined ||
+                                menuData?.theme?.appearance?.useLogo == true) ? (
                                 <img
                                     src={menuData.settings.logo_url}
                                     alt={menuData.restaurantInfo.name}

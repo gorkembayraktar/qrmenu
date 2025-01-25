@@ -81,19 +81,80 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
     <>
       <main className="relative min-h-screen bg-background">
         {/* Hero Section */}
-        <div className="relative h-[80vh] min-h-[600px] bg-[url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600')] bg-cover bg-center">
-          <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/70">
+        <div className={`relative ${menuData.theme?.appearance?.hero?.height === 'small' ? 'h-[40vh]' :
+          menuData.theme?.appearance?.hero?.height === 'medium' ? 'h-[60vh]' :
+            menuData.theme?.appearance?.hero?.height === 'large' ? 'h-[80vh]' :
+              'h-[100vh]'
+          } min-h-[400px] bg-cover bg-center`}>
+          <div className="absolute inset-0 w-full h-full overflow-hidden">
+            {menuData.theme?.appearance?.hero?.type === 'video' ? (
+              <>
+                {menuData.theme?.appearance?.hero?.video_url?.includes('youtube.com') ? (
+                  <div className="relative w-full h-full pt-[56.25%]">
+                    <iframe
+                      src={`${menuData.theme?.appearance?.hero?.video_url?.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&enablejsapi=1&playlist=${menuData.theme?.appearance?.hero?.video_url?.split('v=')[1]}`}
+                      title="Hero Video"
+                      className="absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                      style={{
+                        border: 'none'
+                      }}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <video
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="w-[100.5%] h-[100.5%] object-cover absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                    style={{ pointerEvents: 'none' }}
+                  >
+                    <source src={menuData.theme?.appearance?.hero?.video_url} type="video/mp4" />
+                  </video>
+                )}
+              </>
+            ) : (
+              <div
+                className="w-full h-full bg-cover bg-center"
+                style={{
+                  backgroundImage: `url('${menuData.theme?.appearance?.hero?.use_default_image
+                    ? menuData.theme?.appearance?.hero?.image_url_default
+                    : menuData.theme?.appearance?.hero?.image_url || '/images/hero.jpg'
+                    }')`
+                }}
+              />
+            )}
+            {/* Overlay for both video and image */}
+            {menuData.theme?.appearance?.hero?.overlay_enabled && (
+              <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/70 pointer-events-none" />
+            )}
+          </div>
+          <div className="absolute inset-0">
             <div className="container mx-auto h-full px-4 py-8">
-              <div className="flex flex-col justify-center h-full max-w-4xl mx-auto text-center">
-
+              <div className={`flex flex-col justify-center h-full mx-auto ${menuData.theme?.appearance?.hero?.content_alignment === 'left'
+                ? 'text-left items-start'
+                : menuData.theme?.appearance?.hero?.content_alignment === 'right'
+                  ? 'text-right items-end ml-auto'
+                  : 'text-center items-center'
+                } ${menuData.theme?.appearance?.hero?.content_alignment === 'left' || menuData.theme?.appearance?.hero?.content_alignment === 'right'
+                  ? 'max-w-2xl'
+                  : 'max-w-4xl'
+                }`}>
                 {menuData.settings.logo_url && (
                   menuData?.theme?.appearance?.useLogo == undefined ||
                   menuData?.theme?.appearance?.useLogo == true) ? (
-                  <div className="mb-8">
+                  <div className={`mb-8 ${menuData.theme?.appearance?.hero?.content_alignment === 'left'
+                    ? 'ml-0'
+                    : menuData.theme?.appearance?.hero?.content_alignment === 'right'
+                      ? 'ml-auto'
+                      : 'mx-auto'
+                    }`}>
                     <img
                       src={menuData.settings.logo_url}
                       alt={menuData.restaurantInfo.name}
-                      className="h-24 w-auto mx-auto"
+                      className="h-24 w-auto"
                     />
                   </div>
                 ) : (
@@ -102,7 +163,10 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                   </h1>
                 )}
                 {menuData.theme.show_title_tagline && (
-                  <p className="text-xl text-white/90 mb-8 font-light max-w-2xl mx-auto">
+                  <p className={`text-xl text-white/90 mb-8 font-light ${menuData.theme?.appearance?.hero?.content_alignment === 'left' || menuData.theme?.appearance?.hero?.content_alignment === 'right'
+                    ? 'max-w-xl'
+                    : 'max-w-2xl mx-auto'
+                    }`}>
                     {menuData.restaurantInfo.description}
                   </p>
                 )}
@@ -195,11 +259,11 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
                     key={category.title}
                     href={`#${categoryId}`}
                     className={`
-                      px-4 py-3 text-sm font-medium transition-all rounded-lg
-                      ${activeCategory === categoryId
+                                    px-4 py-3 text-sm font-medium transition-all rounded-lg
+                                    ${activeCategory === categoryId
                         ? 'text-primary bg-primary/5 font-semibold'
                         : 'text-gray-600 hover:text-primary hover:bg-primary/5'}
-                    `}
+                                `}
                   >
                     {category.title}
                   </a>
@@ -237,7 +301,9 @@ export default function ThemeV1({ menuData }: { menuData: any }) {
             {/* Restaurant Info */}
             <div className="space-y-6">
               <div>
-                {menuData.settings.logo_url ? (
+                {menuData.settings.logo_url && (
+                  menuData?.theme?.appearance?.useLogo == undefined ||
+                  menuData?.theme?.appearance?.useLogo == true) ? (
                   <div className="mb-4">
                     <img
                       src={menuData.settings.logo_url}
