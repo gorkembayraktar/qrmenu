@@ -6,6 +6,7 @@ import ThemeV2 from "@/themes/v2/page";
 import ThemeV3 from "@/themes/v3/page";
 
 import { createClient } from "@/utils/supabase_server";
+import { Metadata } from 'next';
 
 
 interface MenuData {
@@ -82,6 +83,8 @@ interface MenuData {
     rating: string;
     footer_text: string;
     email: string;
+    page_title: string;
+    keywords?: string;
     workingHours: Array<{
       day: number;
       is_open: boolean;
@@ -194,7 +197,7 @@ async function getMenuData(): Promise<MenuData> {
       email: settingsObj.email || '',
       name: settingsObj.restaurant_name || '',
       description: settingsObj.restaurant_slogan || '',
-
+      page_title: settingsObj.page_title || '',
       tagline: settingsObj.page_title || '',
       phone: settingsObj.phone || '',
       address: settingsObj.address || '',
@@ -261,3 +264,100 @@ export default async function Home({
     </>
   );
 }
+
+export const generateMetadata = async ({ searchParams }: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+): Promise<Metadata> => {
+  try {
+    const params = await searchParams;
+    const menuData = await getMenuData();
+
+    // Varsayılan metadata
+    const defaultMetadata = {
+      title: menuData.restaurantInfo?.page_title || 'QR Menu',
+      description: menuData.restaurantInfo?.description || 'Modern ve şık dijital menü çözümü',
+      keywords: menuData.restaurantInfo?.keywords || 'qr menu, dijital menu, restoran menüsü, cafe menüsü',
+    };
+
+    // Preview modunda ise farklı başlık göster
+    if (params.preview === 'true') {
+      return {
+        ...defaultMetadata,
+        title: menuData.restaurantInfo?.page_title || 'QR Menu - Önizleme Modu',
+        robots: {
+          index: false,
+          follow: false,
+        }
+      };
+    }
+
+
+
+    // Metadata objesi
+    const metadata: Metadata = {
+      title: defaultMetadata.title,
+      description: defaultMetadata.description,
+      keywords: defaultMetadata.keywords,
+      icons: {
+        icon: [
+          {
+            url: menuData.settings?.favicon_url || '/favicon.ico',
+            sizes: 'any',
+          }
+        ],
+        apple: [
+          {
+            url: menuData.settings?.favicon_url || '/apple-touch-icon.png',
+            sizes: '180x180',
+            type: 'image/png',
+          }
+        ],
+        shortcut: [
+          { url: menuData.settings?.favicon_url || '/favicon.ico' }
+        ],
+      },
+      manifest: '/manifest.json',
+      openGraph: {
+        title: menuData.restaurantInfo?.name || defaultMetadata.title,
+        description: menuData.restaurantInfo?.description || defaultMetadata.description,
+        type: 'website',
+        url: process.env.NEXT_PUBLIC_SITE_URL,
+        siteName: menuData.restaurantInfo?.name || defaultMetadata.title,
+        images: [
+          {
+            url: menuData.settings?.logo_url || '/images/og-image.jpg',
+            width: 1200,
+            height: 630,
+            alt: menuData.restaurantInfo?.name || defaultMetadata.title,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: menuData.restaurantInfo?.name || defaultMetadata.title,
+        description: menuData.restaurantInfo?.description || defaultMetadata.description,
+        images: [menuData.settings?.logo_url || '/images/og-image.jpg'],
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
+      alternates: {
+        canonical: process.env.NEXT_PUBLIC_SITE_URL,
+      },
+    };
+
+    return metadata;
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return {
+      title: 'QR Menu',
+      description: 'Modern ve şık dijital menü çözümü',
+      icons: {
+        icon: [{ url: '/favicon.ico' }],
+        shortcut: [{ url: '/favicon.ico' }],
+      },
+    };
+  }
+};
